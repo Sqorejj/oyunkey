@@ -267,6 +267,239 @@ function handleLogin() {
         alert("Lütfen tüm alanları doldurun!");
     }
 }
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OyunKey | Swascshop Panel</title>
+    <style>
+        :root {
+            --primary: #7289da;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --accent: #43b581;
+            --danger: #f04747;
+        }
 
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+        }
+
+        nav {
+            background: #000;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0; z-index: 1000;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+            width: 250px;
+        }
+
+        /* Admin Paneli */
+        #admin-panel {
+            display: none;
+            background: #2c2f33;
+            padding: 20px;
+            border-bottom: 3px solid var(--accent);
+            text-align: center;
+        }
+
+        #admin-panel input { padding: 8px; margin: 5px; border-radius: 5px; border: none; }
+
+        /* Modal Tasarımı */
+        #auth-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0,0,0,1);
+            z-index: 2000;
+            width: 320px;
+        }
+
+        .tab-menu { display: flex; margin-bottom: 20px; cursor: pointer; }
+        .tab { flex: 1; text-align: center; padding: 10px; border-bottom: 2px solid #444; }
+        .tab.active { border-color: var(--primary); color: var(--primary); font-weight: bold; }
+
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+
+        .delete-btn {
+            display: none; /* Sadece admine görünecek */
+            position: absolute; top: 10px; right: 10px;
+            background: var(--danger); color: white; border: none;
+            padding: 5px 10px; border-radius: 5px; cursor: pointer;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px; padding: 40px;
+        }
+
+        .game-card {
+            background: var(--card-bg); border-radius: 12px;
+            overflow: hidden; border: 1px solid #333; position: relative;
+            transition: 0.3s;
+        }
+
+        .game-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .game-card img { width: 100%; height: 160px; object-fit: cover; }
+        .game-info { padding: 15px; }
+
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500;
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay" class="overlay" onclick="closeAuth()"></div>
+
+<nav>
+    <div class="logo"><h1>OyunKey</h1></div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Oyun ara..." onkeyup="filterGames()"></div>
+    <div id="user-controls">
+        <button class="btn" onclick="openAuth()">Giriş / Kayıt</button>
+    </div>
+</nav>
+
+<!-- Admin Paneli -->
+<div id="admin-panel">
+    <h3 style="color: var(--accent);">Mağaza Yönetimi (Hoş geldin Swascshop)</h3>
+    <input type="text" id="gameTitle" placeholder="Oyun Adı">
+    <input type="text" id="gamePrice" placeholder="Fiyat (Örn: 100 TL)">
+    <input type="text" id="gameImg" placeholder="Görsel Linki">
+    <button class="btn" style="background: var(--accent);" onclick="addGame()">Sisteme Ekle</button>
+</div>
+
+<!-- Giriş / Kayıt Modal -->
+<div id="auth-modal">
+    <div class="tab-menu">
+        <div id="tab-login" class="tab active" onclick="switchTab('login')">Giriş Yap</div>
+        <div id="tab-register" class="tab" onclick="switchTab('register')">Kayıt Ol</div>
+    </div>
+    
+    <div id="auth-fields">
+        <input type="text" id="userInp" placeholder="Kullanıcı Adı" style="width:90%; padding:10px; margin-bottom:10px;">
+        <input type="password" id="passInp" placeholder="Şifre" style="width:90%; padding:10px; margin-bottom:20px;">
+        <button id="auth-btn" class="btn" style="width:100%" onclick="handleAuth()">Giriş Yap</button>
+    </div>
+</div>
+
+<div class="container" id="gameGrid">
+    <div class="game-card" id="game-1">
+        <button class="delete-btn" onclick="deleteGame('game-1')">SİL</button>
+        <img src="https://images.alphacoders.com/129/1291122.jpg">
+        <div class="game-info"><h3>Modern Warfare 2</h3><p class="price" style="color:var(--accent)">450 TL</p></div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'login';
+    let isAdmin = false;
+
+    function openAuth() {
+        document.getElementById('auth-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeAuth() {
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function switchTab(mode) {
+        currentMode = mode;
+        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+        document.getElementById('auth-btn').innerText = mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol';
+    }
+
+    function handleAuth() {
+        const user = document.getElementById('userInp').value;
+        const pass = document.getElementById('passInp').value;
+
+        if (currentMode === 'login') {
+            // ADMIN GİRİŞİ (YENİ ŞİFRE)
+            if (user === "Swascshop" && pass === "159357yzgt") {
+                alert("Hoş geldin Sahip!");
+                isAdmin = true;
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('user-controls').innerHTML = `<b>Admin: Swascshop</b>`;
+                showDeleteButtons();
+                closeAuth();
+            } else {
+                alert("Giriş başarılı, iyi alışverişler " + user);
+                closeAuth();
+            }
+        } else {
+            alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
+            switchTab('login');
+        }
+    }
+
+    function addGame() {
+        const title = document.getElementById('gameTitle').value;
+        const price = document.getElementById('gamePrice').value;
+        const img = document.getElementById('gameImg').value || 'https://via.placeholder.com/300x160';
+        const gameId = 'game-' + Date.now();
+
+        if(title && price) {
+            const grid = document.getElementById('gameGrid');
+            const newCard = `
+                <div class="game-card" id="${gameId}">
+                    <button class="delete-btn" style="display:block" onclick="deleteGame('${gameId}')">SİL</button>
+                    <img src="${img}">
+                    <div class="game-info"><h3>${title}</h3><p style="color:var(--accent)">${price}</p></div>
+                </div>`;
+            grid.innerHTML += newCard;
+        }
+    }
+
+    function deleteGame(id) {
+        if(confirm("Bu oyunu sistemden silmek istediğine emin misin?")) {
+            document.getElementById(id).remove();
+        }
+    }
+
+    function showDeleteButtons() {
+        const btns = document.querySelectorAll('.delete-btn');
+        btns.forEach(b => b.style.display = 'block');
+    }
+
+    function filterGames() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.querySelectorAll('.game-card');
+        cards.forEach(card => {
+            let title = card.querySelector('h3').innerText.toLowerCase();
+            card.style.display = title.includes(input) ? "block" : "none";
+        });
+    }
+</script>
+
+</body>
+</html>
 </body>
 </html>
