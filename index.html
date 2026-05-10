@@ -3,201 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Global Gaming Store</title>
-    
+    <title>Swascshop | Ultimate Global Store</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-
     <style>
-        :root { 
-            --primary: #7289da; 
-            --bg: #0b0b0b; 
-            --card-bg: #161616; 
-            --text: #ffffff; 
-            --accent: #43b581; 
-            --danger: #ff4747;
-            --neon: #9146ff; /* Mor Neon Işığı */
-        }
+        :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --danger: #ff4747; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; background-image: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #0b0b0b 80%); min-height: 100vh; overflow-x: hidden; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #0b0b0b 80%);
-            min-height: 100vh;
-        }
+        nav { background: rgba(0,0,0,0.9); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
+        .logo h1 { margin:0; color:var(--neon); font-style: italic; text-shadow: 0 0 10px var(--neon); cursor: pointer; }
 
-        /* Navigasyon */
-        nav { 
-            background: rgba(0,0,0,0.9); 
-            padding: 15px 30px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 2px solid var(--neon); 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
+        #admin-panel { display: none; background: #1a1a1b; padding: 25px; border-bottom: 3px solid var(--neon); animation: fadeIn 0.5s; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
 
-        .logo h1 { 
-            margin:0; 
-            color:var(--neon); 
-            font-style: italic; 
-            text-shadow: 0 0 10px var(--neon); 
-        }
-
-        /* RGB Animasyonlu Kartlar */
-        .container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 25px; 
-            padding: 20px 40px; 
-        }
-
-        .game-card { 
-            background: var(--card-bg); 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #222; 
-            position: relative; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-
-        .game-card:hover { 
-            transform: scale(1.05); 
-            border-color: var(--neon);
-            box-shadow: 0 0 25px rgba(145, 70, 255, 0.5);
-        }
-
-        .game-card img { width: 100%; height: 160px; object-fit: cover; transition: 0.5s; }
-
-        /* Kategori Butonları */
-        .filter-bar { 
-            display: flex; 
-            justify-content: center; 
-            gap: 15px; 
-            padding: 30px 20px 10px 20px; 
-            flex-wrap: wrap; 
-        }
-        .filter-btn {
-            background: #222; 
-            color: #aaa; 
-            border: 1px solid #333; 
-            padding: 8px 22px; 
-            border-radius: 20px; 
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-        .filter-btn.active, .filter-btn:hover { 
-            background: var(--neon); 
-            color: white; 
-            box-shadow: 0 0 15px var(--neon);
-        }
-
-        /* Genel Butonlar */
-        .btn { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
-            text-transform: uppercase;
-        }
-        .btn:hover { background: var(--neon); transform: translateY(-2px); }
-
-        /* Paneller */
-        #admin-panel, #library-panel { 
-            display: none; 
-            background: #1a1a1b; 
-            padding: 25px; 
-            border-bottom: 3px solid var(--neon); 
-            text-align: center;
-            animation: fadeIn 0.5s;
-        }
-
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10; }
-
-        /* Modallar */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 0 50px #000; z-index: 2000; width: 320px; border: 1px solid var(--neon); }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1500; }
+        .wheel-box { display: none; text-align: center; margin: 20px auto; padding: 25px; border: 2px dashed var(--neon); border-radius: 15px; width: 320px; background: rgba(0,0,0,0.6); box-shadow: 0 0 20px rgba(145, 70, 255, 0.2); }
         
-        input, textarea, select { padding: 12px; margin: 8px 0; border-radius: 5px; border: none; background: #222; width: 100%; box-sizing: border-box; color: white; font-family: inherit; }
+        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; box-shadow: 0 0 20px #000; display: none; z-index: 9999; transition: 0.5s; }
 
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 40px; }
+        .game-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.4s; position: relative; }
+        .game-card:hover { transform: scale(1.04); border-color: var(--neon); box-shadow: 0 0 25px rgba(145, 70, 255, 0.4); }
+        .game-card img { width: 100%; height: 160px; object-fit: cover; }
+        
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 2000; width: 320px; border: 1px solid var(--neon); box-shadow: 0 0 100px #000; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1500; backdrop-filter: blur(5px); }
+        
+        input, textarea, select { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #222; width: 100%; color: white; box-sizing: border-box; }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     </style>
 </head>
 <body>
 
 <div id="overlay" class="overlay"></div>
+<div id="notification-toast"></div>
+<audio id="bg-music" loop></audio>
 
 <nav>
-    <div class="logo"><h1 onclick="location.reload()" style="cursor:pointer;">SWASCSHOP</h1></div>
-    <div id="user-controls">
-        <button class="btn" onclick="openModal('auth-modal')">Giriş Yap</button>
+    <div class="logo"><h1 onclick="location.reload()">SWASCSHOP</h1></div>
+    <div style="display:flex; align-items:center;">
+        <span id="music-btn" onclick="toggleMusic()" style="cursor:pointer; font-size:24px; margin-right:20px;">🎵</span>
+        <div id="user-controls"><button class="btn" onclick="openModal('auth-modal')">Giriş Yap</button></div>
     </div>
 </nav>
 
 <div id="admin-panel">
-    <h3 style="color: var(--neon);">👑 YÖNETİCİ TERMİNALİ</h3>
-    <textarea id="keyList" style="height:80px;" placeholder="Satılacak Keyleri buraya yapıştırın (Her satıra bir tane)..."></textarea>
-    <button class="btn" style="width:100%; margin-bottom:15px; background:#444;" onclick="updateKeys()">Depoyu Güncelle</button>
-    
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <input type="text" id="gTitle" placeholder="Oyun Adı">
-        <input type="text" id="gPrice" placeholder="Fiyat (TL)">
-        <input type="text" id="gImg" placeholder="Resim URL'si">
-        <select id="gCat">
-            <option value="Hepsi">Kategori Seç</option>
-            <option value="Steam">Steam</option>
-            <option value="Valorant">Valorant</option>
-            <option value="Roblox">Roblox</option>
-            <option value="Random">Random Key</option>
-        </select>
-        <input type="text" id="gSecret" placeholder="Müşteriye Verilecek Gizli Bilgi" style="grid-column: span 2;">
+    <h2 style="color:var(--neon); text-align:center;">👑 YÖNETİCİ TERMİNALİ</h2>
+    <div class="admin-grid">
+        <div>
+            <h3>➕ Ürün Ekle</h3>
+            <input type="text" id="gTitle" placeholder="Oyun Adı">
+            <input type="text" id="gPrice" placeholder="Fiyat (TL)">
+            <input type="text" id="gImg" placeholder="Resim URL (Link)">
+            <input type="text" id="gSecret" placeholder="Müşteriye Gidecek Bilgi">
+            <select id="gCat">
+                <option value="Steam">Steam</option>
+                <option value="Valorant">Valorant</option>
+                <option value="Roblox">Roblox</option>
+                <option value="Random">Random Key</option>
+            </select>
+            <button class="btn" style="width:100%;" onclick="addGame()">MAĞAZAYA EKLE</button>
+        </div>
+        <div>
+            <h3>⚙️ Mağaza Ayarları</h3>
+            <label>Çark Ödülleri (Virgülle ayır):</label>
+            <input type="text" id="wheelRewards" placeholder="Örn: 10TL, Key, Pas">
+            <label>Müzik MP3 Linki:</label>
+            <input type="text" id="musicUrl" placeholder="MP3 Linkini Yapıştır">
+            <button class="btn" style="width:100%; background:var(--accent); margin-top:10px;" onclick="updateSettings()">AYARLARI KAYDET</button>
+        </div>
+        <div>
+            <h3>🔑 Key Deposu</h3>
+            <textarea id="keyList" style="height:120px;" placeholder="Her satıra bir key yazın..."></textarea>
+            <button class="btn" style="width:100%; background:#444;" onclick="updateKeys()">KEYLERİ GÜNCELLE</button>
+        </div>
     </div>
-    <button class="btn" style="width:100%; margin-top:10px; background:var(--accent);" onclick="addGame()">Mağazaya Gönder</button>
 </div>
 
-<div class="filter-bar">
-    <button class="filter-btn active" onclick="filterGames('Hepsi')">TÜMÜ</button>
-    <button class="filter-btn" onclick="filterGames('Steam')">STEAM</button>
-    <button class="filter-btn" onclick="filterGames('Valorant')">VALORANT</button>
-    <button class="filter-btn" onclick="filterGames('Roblox')">ROBLOX</button>
-    <button class="filter-btn" onclick="filterGames('Random')">RANDOM KEY</button>
+<div class="wheel-box" id="daily-wheel">
+    <h3 style="color:var(--neon);">🎡 ŞANS ÇARKI</h3>
+    <p id="wheel-msg">Giriş yaptın! Bugünün ödülünü al.</p>
+    <button class="btn" id="spin-btn" onclick="spinWheel()">ÇEVİR VE KAZAN</button>
 </div>
 
-<div id="library-panel">
-    <h2 style="color: var(--primary);">📚 SATIN ALDIĞIM ÜRÜNLER</h2>
-    <div id="library-content" class="container"></div>
-    <button class="btn" onclick="document.getElementById('library-panel').style.display='none'">Kapat</button>
-</div>
+<div class="container" id="gameGrid"></div>
 
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center">Mağaza Erişimi</h2>
-    <input type="text" id="uName" placeholder="Kullanıcı Adınız">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">Sisteme Gir</button>
+    <h2 style="text-align:center; color:var(--neon);">ERİŞİM KİLİDİ</h2>
+    <p style="text-align:center; font-size:12px; color:#888;">Mağazaya girmek için bilgilerinizi girin.</p>
+    <input type="text" id="uName" placeholder="Kullanıcı Adı">
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">MAĞAZAYI AÇ</button>
 </div>
 
 <div id="key-modal" class="modal">
-    <h2 style="text-align:center">Ürünü Aktif Et</h2>
-    <input type="text" id="keyInp" placeholder="Lisans anahtarınızı girin">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Onayla ve Al</button>
-    <button class="btn" style="width:100%; margin-top:5px; background:#444;" onclick="closeModals()">İptal</button>
+    <h2 style="text-align:center;">Ürünü Aktif Et</h2>
+    <input type="text" id="keyInp" placeholder="Lisans anahtarını gir">
+    <button class="btn" style="width:100%;" onclick="useKey()">ONAYLA</button>
+    <button class="btn" style="width:100%; margin-top:5px; background:#444;" onclick="closeModals()">İPTAL</button>
 </div>
 
-<div class="container" id="gameGrid">
-    </div>
-
 <script>
-    // --- FİREBASE BİLGİLERİN ---
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -208,158 +115,153 @@
         appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
     };
 
-    // --- ŞİFRE AYARLARI ---
-    const adminUser = "Swascshop";
-    const adminPass = "12345";       // Admin Şifren
-    const customerPass = "shop2026"; // Müşteri Şifren
-
+    const adminUser = "Swascshop", adminPass = "159357yzgt", customerPass = "shop2026";
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let currentUser = localStorage.getItem('user');
-    let targetGame = null;
-    let allGames = {};
+    let currentUser = localStorage.getItem('user'), targetGame = null, isPlaying = false;
 
     window.onload = () => {
         listenData();
-        if(currentUser) setupUI();
-        else openModal('auth-modal');
+        if(currentUser) {
+            setupUI();
+            document.getElementById('daily-wheel').style.display = 'block';
+        } else {
+            openModal('auth-modal');
+        }
+        loadSettings();
+        startFakeSales();
     };
 
     function handleLogin() {
         const u = document.getElementById('uName').value.trim();
-        if(!u) return alert("İsim girmelisin!");
-        const p = prompt("Giriş Şifresini Yazın:");
+        if(!u) return alert("İsim yazmalısın!");
+        const p = prompt("Giriş Şifresini Girin:");
         
         if(u.toLowerCase() === adminUser.toLowerCase()) {
             if(p === adminPass) { localStorage.setItem('user', adminUser); location.reload(); }
             else alert("Hatalı Admin Şifresi!");
         } else {
             if(p === customerPass) { localStorage.setItem('user', u); location.reload(); }
-            else alert("Hatalı Müşteri Şifresi!");
+            else alert("Mağaza Şifresi Hatalı!");
         }
     }
 
     function listenData() {
-        db.ref('games').on('value', snapshot => {
-            allGames = snapshot.val() || {};
-            filterGames('Hepsi');
+        db.ref('games').on('value', s => {
+            const games = s.val() || {};
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = "";
+            Object.keys(games).forEach(id => {
+                const g = games[id];
+                grid.innerHTML += `<div class="game-card">
+                    ${currentUser === adminUser ? `<button class="btn" style="background:red; padding:5px; position:absolute; right:5px; top:5px;" onclick="deleteGame('${id}')">SİL</button>` : ''}
+                    <img src="${g.img || 'https://via.placeholder.com/300x160'}">
+                    <div style="padding:15px;">
+                        <span style="font-size:10px; color:var(--neon);">${g.category || 'GENEL'}</span>
+                        <h3 style="margin:5px 0;">${g.title}</h3>
+                        <p style="color:var(--accent); font-weight:bold; font-size:18px;">${g.price} TL</p>
+                        <button class="btn" style="width:100%;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">KEY KULLAN</button>
+                    </div></div>`;
+            });
         });
-        if(currentUser === adminUser) {
-            db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
-        }
+        if(currentUser === adminUser) db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
     }
 
-    function filterGames(cat) {
-        const grid = document.getElementById('gameGrid');
-        grid.innerHTML = "";
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText === cat || (cat === 'Hepsi' && btn.innerText === 'TÜMÜ')) btn.classList.add('active');
-        });
+    function updateSettings() {
+        db.ref('settings/wheel').set(document.getElementById('wheelRewards').value);
+        db.ref('settings/music').set(document.getElementById('musicUrl').value);
+        alert("Ayarlar Veritabanına Kaydedildi!");
+    }
 
-        Object.keys(allGames).forEach(id => {
-            const g = allGames[id];
-            if(cat === 'Hepsi' || g.category === cat) {
-                grid.innerHTML += `
-                    <div class="game-card">
-                        ${currentUser === adminUser ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
-                        <img src="${g.img || 'https://via.placeholder.com/300x160?text=Swascshop'}">
-                        <div class="game-info" style="padding:15px;">
-                            <span style="font-size:10px; color:var(--neon); font-weight:bold;">${g.category || 'GENEL'}</span>
-                            <h3 style="margin:5px 0;">${g.title}</h3>
-                            <p style="color:var(--accent); font-weight:bold; font-size:18px;">${g.price} TL</p>
-                            <button class="btn" style="width:100%;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">Key Kullan</button>
-                        </div>
-                    </div>`;
+    function loadSettings() {
+        db.ref('settings').on('value', s => {
+            const data = s.val() || {};
+            if(data.music) document.getElementById('bg-music').src = data.music;
+            if(currentUser === adminUser) {
+                document.getElementById('wheelRewards').value = data.wheel || "";
+                document.getElementById('musicUrl').value = data.music || "";
             }
         });
     }
 
+    function spinWheel() {
+        const btn = document.getElementById('spin-btn');
+        btn.disabled = true;
+        btn.innerText = "DÖNÜYOR...";
+        db.ref('settings/wheel').once('value', s => {
+            const rewards = (s.val() || "Üzgünüm,Pas,İndirim,Key").split(',');
+            setTimeout(() => {
+                const win = rewards[Math.floor(Math.random() * rewards.length)];
+                document.getElementById('wheel-msg').innerHTML = `🎉 KAZANDIN: <b style="color:var(--neon)">${win}</b>`;
+                showToast(`Harika! ${win} kazandın. Bize bildir!`);
+                btn.innerText = "YARIN YİNE GEL";
+            }, 2000);
+        });
+    }
+
+    function startFakeSales() {
+        const names = ["Berke", "Yusuf", "Emir", "Caner", "Arda", "Zeynep"];
+        const items = ["Steam Key", "Roblox Robux", "Valorant Account", "Random Gold Key"];
+        setInterval(() => {
+            if(Math.random() > 0.8 && currentUser) {
+                const n = names[Math.floor(Math.random() * names.length)];
+                const i = items[Math.floor(Math.random() * items.length)];
+                showToast(`⚡ ${n} az önce ${i} satın aldı!`);
+            }
+        }, 10000);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('notification-toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    function toggleMusic() {
+        const m = document.getElementById('bg-music');
+        if(!isPlaying) { m.play(); isPlaying = true; document.getElementById('music-btn').innerText = "⏸️"; }
+        else { m.pause(); isPlaying = false; document.getElementById('music-btn').innerText = "🎵"; }
+    }
+
     function setupUI() {
-        const ctrl = document.getElementById('user-controls');
-        ctrl.innerHTML = `
-            <div class="profile-container">
-                <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
-                <div id="pMenu" class="profile-menu">
-                    <a onclick="showLibrary()">📦 Kütüphanem</a>
-                    ${currentUser === adminUser ? '<a onclick="showAdmin()">👑 Admin Paneli</a>' : ''}
-                    <a onclick="localStorage.clear(); location.reload();" style="color:var(--danger)">🚪 Çıkış Yap</a>
-                </div>
-            </div>`;
+        document.getElementById('user-controls').innerHTML = `
+            <button class="btn" onclick="toggleAdminPanel()">👤 ${currentUser}</button>
+            ${currentUser === adminUser ? '<button class="btn" style="background:#444; margin-left:5px;" onclick="logout()">ÇIKIŞ</button>' : ''}`;
     }
-
-    function toggleMenu() {
-        const m = document.getElementById('pMenu');
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; toggleMenu(); }
-
+    
+    function logout() { localStorage.clear(); location.reload(); }
+    function toggleAdminPanel() { if(currentUser === adminUser) { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
+    
     function addGame() {
         const title = document.getElementById('gTitle').value, price = document.getElementById('gPrice').value;
         const img = document.getElementById('gImg').value, secret = document.getElementById('gSecret').value;
         const category = document.getElementById('gCat').value;
-        if(title && secret) {
-            db.ref('games').push({ title, price, img, secret, category });
-            alert("Ürün Mağazaya Eklendi!");
-        }
+        if(title && secret) { db.ref('games').push({ title, price, img, secret, category }); alert("Eklendi!"); }
     }
-
-    function deleteGame(id) { if(confirm("Ürünü kaldırmak istiyor musun?")) db.ref('games/' + id).remove(); }
     
-    function updateKeys() {
-        const k = document.getElementById('keyList').value.split('\n').map(x => x.trim()).filter(x => x);
-        db.ref('keys').set(k);
-        alert("Key deposu güncellendi!");
-    }
-
-    function prepareKey(id, title, secret, img) {
-        if(!currentUser) return openModal('auth-modal');
-        targetGame = { id, title, secret, img };
-        openModal('key-modal');
-    }
-
+    function deleteGame(id) { if(confirm("Silinsin mi?")) db.ref('games/' + id).remove(); }
+    function updateKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(k => k.trim())); alert("Keyler Depolandı!"); }
+    function prepareKey(id, title, secret, img) { targetGame = { id, title, secret, img }; openModal('key-modal'); }
+    
     function useKey() {
         const inp = document.getElementById('keyInp').value.trim();
         db.ref('keys').once('value', s => {
-            let kList = s.val() || [];
-            const idx = kList.indexOf(inp);
+            let k = s.val() || []; const idx = k.indexOf(inp);
             if(idx > -1) {
-                kList.splice(idx, 1);
-                db.ref('keys').set(kList);
-                db.ref('libraries/' + currentUser).push(targetGame);
-                alert("TEBRİKLER! Ürün Kütüphanene Eklendi.");
+                k.splice(idx, 1); db.ref('keys').set(k);
+                alert("BAŞARILI! Ürün Bilgisi: " + targetGame.secret);
                 closeModals();
-            } else alert("GEÇERSİZ ANAHTAR!");
-        });
-    }
-
-    function showLibrary() {
-        document.getElementById('library-panel').style.display = 'block';
-        toggleMenu();
-        db.ref('libraries/' + currentUser).on('value', s => {
-            const lib = s.val() || {};
-            const content = document.getElementById('library-content');
-            content.innerHTML = "";
-            Object.values(lib).forEach(g => {
-                content.innerHTML += `
-                    <div class="game-card">
-                        <img src="${g.img}">
-                        <div class="game-info" style="padding:15px;">
-                            <h3>${g.title}</h3>
-                            <div style="background:#000; padding:10px; border:1px dashed var(--neon); color:var(--accent); font-size:12px;">
-                                <strong>GİZLİ BİLGİ:</strong><br>${g.secret}
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            if(Object.keys(lib).length === 0) content.innerHTML = "<p>Henüz bir ürün satın almadın.</p>";
+            } else alert("GEÇERSİZ KEY!");
         });
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
+    function closeModals() { 
+        if(!currentUser && document.getElementById('auth-modal').style.display === 'block') return;
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+        document.getElementById('overlay').style.display = 'none'; 
+    }
 </script>
-
 </body>
 </html>
