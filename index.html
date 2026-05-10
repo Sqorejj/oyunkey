@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Fake Review Pro v9</title>
+    <title>Swascshop | Global Sync v10</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
@@ -14,33 +16,31 @@
         .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
 
         /* ADMİN PANELİ */
-        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); position: relative; z-index: 1500; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .admin-box { background: #2a2a2e; padding: 15px; border-radius: 12px; border: 1px solid #444; }
 
-        .section { display: none; padding: 40px; max-width: 1200px; margin: auto; }
+        .section { display: none; padding: 40px; max-width: 1200px; margin: auto; animation: fadeIn 0.5s; }
         .active { display: block !important; }
 
         input, textarea { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; background: #000; width: 100%; color: white; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn:hover { background: var(--neon); }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
 
         .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; }
         
-        /* SOL ALT FAKE DEĞERLENDİRME BİLDİRİMİ */
         #fake-review-toast { 
-            position: fixed; bottom: 20px; left: -400px; /* Başlangıçta gizli */
-            background: var(--card-bg); border-left: 5px solid gold; 
-            padding: 15px; border-radius: 8px; z-index: 9999; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8); width: 280px;
+            position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; 
+            padding: 15px; border-radius: 8px; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.8); width: 280px;
             transition: left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
         #fake-review-toast.show { left: 20px; }
 
-        .review-card { background: #222; padding: 15px; border-radius: 10px; margin-top: 10px; border-bottom: 2px solid var(--neon); }
+        .review-card { background: #1a1a1a; padding: 15px; border-radius: 10px; border-bottom: 2px solid var(--neon); width: 280px; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; display: none; }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 320px; border: 2px solid var(--neon); display: none; }
+        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
     </style>
 </head>
 <body>
@@ -48,15 +48,15 @@
 <div id="top-announcement">📢 DEĞERLENDİRME YAPANA 1 KEY BEDAVA!</div>
 
 <div id="fake-review-toast">
-    <div style="color: gold; font-weight: bold; margin-bottom: 5px;">⭐ YENİ DEĞERLENDİRME</div>
+    <div style="color: gold; font-weight: bold; margin-bottom: 5px;">⭐ YENİ YORUM</div>
     <div id="toast-content" style="font-size: 14px;"></div>
 </div>
 
-<div id="overlay" class="overlay" style="display: block;"></div>
-<div id="auth-modal" class="modal" style="display: block;">
-    <h2 style="text-align:center; color:var(--neon);">Swascshop Giriş</h2>
+<div id="overlay" class="overlay"></div>
+<div id="auth-modal" class="modal">
+    <h2 style="text-align:center; color:var(--neon);">Giriş Yap</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" onclick="handleLogin()">GİRİŞ YAP</button>
+    <button class="btn" onclick="handleLogin()">GİRİŞ</button>
 </div>
 
 <nav>
@@ -83,121 +83,173 @@
             <h3>⭐ Fake Yorum Ekle</h3>
             <input type="text" id="revName" placeholder="Kişi İsmi">
             <textarea id="revText" placeholder="Yorum metni..."></textarea>
-            <button class="btn" style="background:var(--accent);" onclick="manualReview()">YORUMU YAYINLA</button>
+            <button class="btn" style="background:var(--accent);" onclick="manualReview()">YAYINLA</button>
         </div>
         <div class="admin-box">
-            <h3>🔑 Keyler & Çark</h3>
-            <textarea id="keyList" placeholder="Key listesi..."></textarea>
+            <h3>🔑 Keyler</h3>
+            <textarea id="keyList" style="height:80px;" placeholder="Alt alta keyler..."></textarea>
             <button class="btn" onclick="saveKeys()">KAYDET</button>
         </div>
     </div>
 </div>
 
 <div id="home" class="section active">
-    <h2 style="color:var(--neon); text-align:center;">Müşterilerimiz Ne Diyor?</h2>
-    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-        </div>
+    <h2 style="color:var(--neon); text-align:center;">Müşteri Değerlendirmeleri</h2>
+    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;"></div>
 </div>
 
 <div id="verify" class="section">
     <div style="max-width:400px; margin:auto; background:var(--card-bg); padding:30px; border-radius:15px; text-align:center; border:1px solid var(--accent);">
-        <h2>KEY DOĞRULA</h2>
-        <input type="text" id="verifyKey" placeholder="KEY-123">
+        <h2>ANAHTAR DOĞRULA</h2>
+        <input type="text" id="verifyKey" placeholder="KEY-XXXX">
         <button class="btn" onclick="checkKey()" style="background:var(--accent);">ONAYLA</button>
     </div>
 </div>
 
 <div id="shop" class="section">
-    <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+        <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
+        <input type="text" id="gameSearch" placeholder="Oyun ara..." style="width:200px;" onkeyup="searchGames()">
+    </div>
     <div class="container" id="gameGrid"></div>
 </div>
 
 <div id="library" class="section">
-    <h2 style="color:var(--warning);">📚 KÜTÜPHANE</h2>
+    <h2 style="color:var(--warning);">📚 KÜTÜPHANEM</h2>
     <div id="libraryGrid"></div>
 </div>
 
 <script>
-    let games = JSON.parse(localStorage.getItem('games')) || [];
-    let reviews = JSON.parse(localStorage.getItem('reviews')) || [
-        {name: "Efe", text: "Çok hızlı teslimat, teşekkürler!"},
-        {name: "Murat", text: "LGS öncesi iyi moral oldu, güvenilir."}
-    ];
-    let currentUser = "";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
+        authDomain: "swascshop.firebaseapp.com",
+        databaseURL: "https://swascshop-default-rtdb.firebaseio.com",
+        projectId: "swascshop",
+        storageBucket: "swascshop.firebasestorage.app",
+        messagingSenderId: "132240652717",
+        appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let currentUser = localStorage.getItem('user');
     let isVerified = false;
+    let allReviews = [];
+
+    window.onload = () => {
+        if(currentUser) { loginSuccess(currentUser); } 
+        else { document.getElementById('overlay').style.display = 'block'; document.getElementById('auth-modal').style.display = 'block'; }
+    };
 
     function handleLogin() {
-        const u = document.getElementById('uName').value;
+        const u = document.getElementById('uName').value.trim();
         const p = prompt("Şifre:");
         if((u === "Swascshop" && p === "12345") || (u && p === "shop2026")) {
-            currentUser = u;
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('auth-modal').style.display = 'none';
-            document.getElementById('user-controls').innerHTML = `<button class="btn" onclick="toggleAdmin()">${u}</button>`;
-            renderGames();
-            renderReviews();
-            startFakeReviewLoop(); // Döngüyü başlat
+            localStorage.setItem('user', u);
+            location.reload();
         } else { alert("Hatalı!"); }
     }
 
+    function loginSuccess(user) {
+        currentUser = user;
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('user-controls').innerHTML = `<button class="btn" style="width:auto;" onclick="toggleAdmin()">👤 ${user}</button>`;
+        loadGlobalData();
+        startFakeReviewLoop();
+    }
+
+    function loadGlobalData() {
+        // Oyunları Çek
+        db.ref('games').on('value', s => {
+            const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
+            const data = s.val() || {};
+            Object.keys(data).forEach(id => {
+                grid.innerHTML += `<div class="game-card"><h3>${data[id].title}</h3><button class="btn" onclick="claimGame('${id}','${data[id].title}','${data[id].secret}')">SEÇ</button></div>`;
+            });
+        });
+
+        // Yorumları Çek
+        db.ref('reviews').on('value', s => {
+            const grid = document.getElementById('reviewsGrid'); grid.innerHTML = "";
+            allReviews = [];
+            const data = s.val() || {};
+            Object.keys(data).forEach(id => {
+                const r = data[id];
+                allReviews.push(r);
+                grid.innerHTML += `<div class="review-card"><strong>👤 ${r.name}</strong><br><span style="color:gold;">⭐⭐⭐⭐⭐</span><p style="font-size:14px;">"${r.text}"</p></div>`;
+            });
+        });
+
+        // Kütüphane
+        db.ref('users/' + currentUser + '/library').on('value', s => {
+            const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
+            const data = s.val() || {};
+            Object.keys(data).forEach(id => {
+                grid.innerHTML += `<div style="background:#111; padding:15px; margin-bottom:10px; border-left:5px solid var(--neon);"><b>${data[id].title}</b><br>Bilgi: ${data[id].secret}</div>`;
+            });
+        });
+
+        if(currentUser === "Swascshop") {
+            db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
+        }
+    }
+
     function showSection(id) {
-        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") return alert("Key doğrula!");
+        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") { alert("Önce key doğrula!"); return; }
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    function renderReviews() {
-        document.getElementById('reviewsGrid').innerHTML = reviews.map(r => `
-            <div class="review-card" style="width:250px;">
-                <strong>👤 ${r.name}</strong><br>
-                <span style="color:gold;">⭐⭐⭐⭐⭐</span>
-                <p style="font-size:14px;">"${r.text}"</p>
-            </div>
-        `).join('');
+    function addGame() {
+        const t = document.getElementById('gTitle').value, s = document.getElementById('gSecret').value;
+        if(t && s) db.ref('games').push({title: t, secret: s}).then(() => alert("Oyun eklendi!"));
     }
 
     function manualReview() {
-        const name = document.getElementById('revName').value;
-        const text = document.getElementById('revText').value;
-        if(!name || !text) return alert("Boş bırakma!");
-        reviews.push({name, text});
-        localStorage.setItem('reviews', JSON.stringify(reviews));
-        renderReviews();
-        alert("Yorum eklendi!");
+        const n = document.getElementById('revName').value, t = document.getElementById('revText').value;
+        if(n && t) db.ref('reviews').push({name: n, text: t}).then(() => alert("Yorum yayınlandı!"));
     }
 
-    // OTOMATİK BİLDİRİM DÖNGÜSÜ (10 DAKİKA)
+    function saveKeys() {
+        const k = document.getElementById('keyList').value.split('\n').filter(x => x.trim());
+        db.ref('keys').set(k).then(() => alert("Keyler kaydedildi!"));
+    }
+
+    function checkKey() {
+        const k = document.getElementById('verifyKey').value.trim();
+        db.ref('keys').once('value', s => {
+            let keys = s.val() || [];
+            const i = keys.indexOf(k);
+            if(i > -1) {
+                keys.splice(i, 1); db.ref('keys').set(keys);
+                isVerified = true; alert("Onaylandı!"); showSection('shop');
+            } else { alert("Geçersiz Key!"); }
+        });
+    }
+
+    function claimGame(id, title, secret) {
+        db.ref('users/' + currentUser + '/library').push({title, secret});
+        isVerified = false; alert("Kütüphaneye eklendi!"); showSection('library');
+    }
+
     function startFakeReviewLoop() {
         const showToast = () => {
-            const randomRev = reviews[Math.floor(Math.random() * reviews.length)];
-            const toast = document.getElementById('fake-review-toast');
-            document.getElementById('toast-content').innerHTML = `<b>${randomRev.name}:</b> "${randomRev.text}"`;
-            
-            toast.classList.add('show'); // Çıkart
-            
-            setTimeout(() => {
-                toast.classList.remove('show'); // 2 dakika sonra (burada test için 5sn yaptım, aşağıda ayarla)
-            }, 120000); // 120.000 ms = 2 Dakika ekranda durur
+            if(allReviews.length === 0) return;
+            const r = allReviews[Math.floor(Math.random() * allReviews.length)];
+            const t = document.getElementById('fake-review-toast');
+            document.getElementById('toast-content').innerHTML = `<b>${r.name}:</b> "${r.text}"`;
+            t.classList.add('show');
+            setTimeout(() => { t.classList.remove('show'); }, 120000); // 2 dk ekranda
         };
-
-        showToast(); // İlk girişte bir tane göster
-        setInterval(showToast, 600000); // 600.000 ms = 10 Dakikada bir çalışır
-    }
-
-    function renderGames() {
-        const grid = document.getElementById('gameGrid');
-        grid.innerHTML = games.map(g => `<div class="game-card"><h3>${g.title}</h3><button class="btn" onclick="buyGame('${g.title}','${g.secret}')">SEÇ</button></div>`).join('');
-    }
-
-    function addGame() {
-        games.push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value});
-        localStorage.setItem('games', JSON.stringify(games));
-        renderGames(); alert("Oyun eklendi!");
+        setInterval(showToast, 600000); // 10 dk bir
     }
 
     function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function checkKey() { if(confirm("Key onaylansın mı? (Test amaçlı oto-onay)")) { isVerified = true; showSection('shop'); } }
-    function buyGame(t, s) { alert("Kütüphaneye eklendi!"); }
+    function searchGames() {
+        const val = document.getElementById('gameSearch').value.toLowerCase();
+        document.querySelectorAll('.game-card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(val) ? "block" : "none"; });
+    }
 </script>
 </body>
 </html>
