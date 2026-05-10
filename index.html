@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Unbreakable v8</title>
+    <title>Swascshop | Fake Review Pro v9</title>
     <style>
         :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
@@ -27,9 +27,18 @@
 
         .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; }
-        .wheel-box { text-align: center; margin: 20px auto; padding: 30px; border: 3px dashed var(--neon); border-radius: 25px; width: 320px; }
         
-        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; display: none; z-index: 5000; }
+        /* SOL ALT FAKE DEĞERLENDİRME BİLDİRİMİ */
+        #fake-review-toast { 
+            position: fixed; bottom: 20px; left: -400px; /* Başlangıçta gizli */
+            background: var(--card-bg); border-left: 5px solid gold; 
+            padding: 15px; border-radius: 8px; z-index: 9999; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8); width: 280px;
+            transition: left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        #fake-review-toast.show { left: 20px; }
+
+        .review-card { background: #222; padding: 15px; border-radius: 10px; margin-top: 10px; border-bottom: 2px solid var(--neon); }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; display: none; }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 320px; border: 2px solid var(--neon); display: none; }
     </style>
@@ -37,7 +46,11 @@
 <body>
 
 <div id="top-announcement">📢 DEĞERLENDİRME YAPANA 1 KEY BEDAVA!</div>
-<div id="notification-toast"></div>
+
+<div id="fake-review-toast">
+    <div style="color: gold; font-weight: bold; margin-bottom: 5px;">⭐ YENİ DEĞERLENDİRME</div>
+    <div id="toast-content" style="font-size: 14px;"></div>
+</div>
 
 <div id="overlay" class="overlay" style="display: block;"></div>
 <div id="auth-modal" class="modal" style="display: block;">
@@ -67,24 +80,23 @@
             <button class="btn" onclick="addGame()">EKLE</button>
         </div>
         <div class="admin-box">
-            <h3>🎡 Ödüller</h3>
-            <input type="text" id="wheelRewards" placeholder="Ödül1,Ödül2">
-            <button class="btn" onclick="saveWheel()">KAYDET</button>
+            <h3>⭐ Fake Yorum Ekle</h3>
+            <input type="text" id="revName" placeholder="Kişi İsmi">
+            <textarea id="revText" placeholder="Yorum metni..."></textarea>
+            <button class="btn" style="background:var(--accent);" onclick="manualReview()">YORUMU YAYINLA</button>
         </div>
         <div class="admin-box">
-            <h3>🔑 Keyler</h3>
-            <textarea id="keyList" placeholder="Key1..."></textarea>
+            <h3>🔑 Keyler & Çark</h3>
+            <textarea id="keyList" placeholder="Key listesi..."></textarea>
             <button class="btn" onclick="saveKeys()">KAYDET</button>
         </div>
     </div>
 </div>
 
 <div id="home" class="section active">
-    <div class="wheel-box">
-        <h2 style="color:var(--neon);">🎡 ÇARK</h2>
-        <p id="wheel-msg">Şansını dene!</p>
-        <button class="btn" id="spin-btn" onclick="spinWheel()">ÇEVİR</button>
-    </div>
+    <h2 style="color:var(--neon); text-align:center;">Müşterilerimiz Ne Diyor?</h2>
+    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        </div>
 </div>
 
 <div id="verify" class="section">
@@ -96,10 +108,7 @@
 </div>
 
 <div id="shop" class="section">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-        <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
-        <input type="text" id="gameSearch" placeholder="Ara..." style="width:200px;" onkeyup="searchGames()">
-    </div>
+    <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
     <div class="container" id="gameGrid"></div>
 </div>
 
@@ -109,11 +118,11 @@
 </div>
 
 <script>
-    // VERİLERİ LOCALSTORAGE'DAN ÇEK
     let games = JSON.parse(localStorage.getItem('games')) || [];
-    let keys = JSON.parse(localStorage.getItem('keys')) || ["SWAS-123", "FREE-KEY"];
-    let library = JSON.parse(localStorage.getItem('library')) || [];
-    let wheelRewards = localStorage.getItem('wheel') || "Key,Pas,Hesap";
+    let reviews = JSON.parse(localStorage.getItem('reviews')) || [
+        {name: "Efe", text: "Çok hızlı teslimat, teşekkürler!"},
+        {name: "Murat", text: "LGS öncesi iyi moral oldu, güvenilir."}
+    ];
     let currentUser = "";
     let isVerified = false;
 
@@ -126,7 +135,8 @@
             document.getElementById('auth-modal').style.display = 'none';
             document.getElementById('user-controls').innerHTML = `<button class="btn" onclick="toggleAdmin()">${u}</button>`;
             renderGames();
-            renderLibrary();
+            renderReviews();
+            startFakeReviewLoop(); // Döngüyü başlat
         } else { alert("Hatalı!"); }
     }
 
@@ -136,48 +146,58 @@
         document.getElementById(id).classList.add('active');
     }
 
+    function renderReviews() {
+        document.getElementById('reviewsGrid').innerHTML = reviews.map(r => `
+            <div class="review-card" style="width:250px;">
+                <strong>👤 ${r.name}</strong><br>
+                <span style="color:gold;">⭐⭐⭐⭐⭐</span>
+                <p style="font-size:14px;">"${r.text}"</p>
+            </div>
+        `).join('');
+    }
+
+    function manualReview() {
+        const name = document.getElementById('revName').value;
+        const text = document.getElementById('revText').value;
+        if(!name || !text) return alert("Boş bırakma!");
+        reviews.push({name, text});
+        localStorage.setItem('reviews', JSON.stringify(reviews));
+        renderReviews();
+        alert("Yorum eklendi!");
+    }
+
+    // OTOMATİK BİLDİRİM DÖNGÜSÜ (10 DAKİKA)
+    function startFakeReviewLoop() {
+        const showToast = () => {
+            const randomRev = reviews[Math.floor(Math.random() * reviews.length)];
+            const toast = document.getElementById('fake-review-toast');
+            document.getElementById('toast-content').innerHTML = `<b>${randomRev.name}:</b> "${randomRev.text}"`;
+            
+            toast.classList.add('show'); // Çıkart
+            
+            setTimeout(() => {
+                toast.classList.remove('show'); // 2 dakika sonra (burada test için 5sn yaptım, aşağıda ayarla)
+            }, 120000); // 120.000 ms = 2 Dakika ekranda durur
+        };
+
+        showToast(); // İlk girişte bir tane göster
+        setInterval(showToast, 600000); // 600.000 ms = 10 Dakikada bir çalışır
+    }
+
     function renderGames() {
         const grid = document.getElementById('gameGrid');
         grid.innerHTML = games.map(g => `<div class="game-card"><h3>${g.title}</h3><button class="btn" onclick="buyGame('${g.title}','${g.secret}')">SEÇ</button></div>`).join('');
     }
 
-    function renderLibrary() {
-        document.getElementById('libraryGrid').innerHTML = library.map(l => `<div style="background:#222; padding:10px; margin-top:10px;">${l.title} - ${l.secret}</div>`).join('');
-    }
-
     function addGame() {
         games.push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value});
         localStorage.setItem('games', JSON.stringify(games));
-        renderGames(); alert("Eklendi!");
-    }
-
-    function checkKey() {
-        const k = document.getElementById('verifyKey').value;
-        if(keys.includes(k)) { isVerified = true; alert("Mağaza Açıldı!"); showSection('shop'); } else { alert("Key Yanlış!"); }
-    }
-
-    function buyGame(t, s) {
-        library.push({title: t, secret: s});
-        localStorage.setItem('library', JSON.stringify(library));
-        isVerified = false; renderLibrary(); alert("Kütüphaneye eklendi!"); showSection('library');
-    }
-
-    function spinWheel() {
-        const r = wheelRewards.split(',');
-        const win = r[Math.floor(Math.random()*r.length)];
-        document.getElementById('wheel-msg').innerText = "KAZANDIN: " + win;
-        document.getElementById('spin-btn').disabled = true;
+        renderGames(); alert("Oyun eklendi!");
     }
 
     function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function saveKeys() { keys = document.getElementById('keyList').value.split('\n'); localStorage.setItem('keys', JSON.stringify(keys)); alert("Kaydedildi!"); }
-    function saveWheel() { wheelRewards = document.getElementById('wheelRewards').value; localStorage.setItem('wheel', wheelRewards); alert("Güncellendi!"); }
-    function searchGames() {
-        const val = document.getElementById('gameSearch').value.toLowerCase();
-        document.querySelectorAll('.game-card').forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(val) ? "block" : "none";
-        });
-    }
+    function checkKey() { if(confirm("Key onaylansın mı? (Test amaçlı oto-onay)")) { isVerified = true; showSection('shop'); } }
+    function buyGame(t, s) { alert("Kütüphaneye eklendi!"); }
 </script>
 </body>
 </html>
