@@ -3,27 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Ultimate Control Edition</title>
+    <title>Swascshop | Professional Gaming Store</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
-        :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --danger: #ff4747; }
+        :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; background-image: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #0b0b0b 80%); min-height: 100vh; overflow-x: hidden; }
         nav { background: rgba(0,0,0,0.9); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
         .logo h1 { margin:0; color:var(--neon); font-style: italic; text-shadow: 0 0 10px var(--neon); cursor: pointer; }
+        
+        /* Admin & Paneller */
         #admin-panel { display: none; background: #1a1a1b; padding: 25px; border-bottom: 3px solid var(--neon); animation: fadeIn 0.5s; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .wheel-box { display: none; text-align: center; margin: 20px auto; padding: 25px; border: 2px dashed var(--neon); border-radius: 15px; width: 320px; background: rgba(0,0,0,0.6); box-shadow: 0 0 20px rgba(145, 70, 255, 0.2); }
-        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; box-shadow: 0 0 20px #000; display: none; z-index: 9999; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        
+        /* Stok & Yorum Tasarımı */
+        .stok-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: var(--warning); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; border: 1px solid var(--warning); }
+        .reviews-section { padding: 40px; background: rgba(255,255,255,0.02); margin-top: 50px; text-align: center; }
+        .review-card { background: var(--card-bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--neon); display: inline-block; margin: 10px; width: 250px; text-align: left; }
+
+        .wheel-box { display: none; text-align: center; margin: 20px auto; padding: 25px; border: 2px dashed var(--neon); border-radius: 15px; width: 320px; background: rgba(0,0,0,0.6); }
+        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; z-index: 9999; display: none; }
+        
         .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 40px; }
         .game-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.4s; position: relative; }
-        .game-card:hover { transform: scale(1.04); border-color: var(--neon); box-shadow: 0 0 25px rgba(145, 70, 255, 0.4); }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--neon); box-shadow: 0 0 20px rgba(145, 70, 255, 0.4); }
         .game-card img { width: 100%; height: 160px; object-fit: cover; }
+        
         .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
-        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 2000; width: 320px; border: 1px solid var(--neon); box-shadow: 0 0 100px #000; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1500; backdrop-filter: blur(5px); }
-        input, textarea, select { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #222; width: 100%; color: white; box-sizing: border-box; }
+        .btn:hover { background: var(--neon); }
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 2000; width: 320px; border: 1px solid var(--neon); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1500; }
+        input, textarea, select { padding: 10px; margin: 5px 0; border-radius: 5px; border: none; background: #222; width: 100%; color: white; box-sizing: border-box; }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     </style>
 </head>
@@ -31,7 +42,7 @@
 
 <div id="overlay" class="overlay"></div>
 <div id="notification-toast"></div>
-<audio id="bg-music" loop></audio>
+<audio id="bg-music" loop preload="auto"></audio>
 
 <nav>
     <div class="logo"><h1 onclick="location.reload()">SWASCSHOP</h1></div>
@@ -45,53 +56,55 @@
     <h2 style="color:var(--neon); text-align:center;">👑 YÖNETİCİ TERMİNALİ</h2>
     <div class="admin-grid">
         <div>
-            <h3>➕ Ürün Ekle</h3>
+            <h3>➕ Ürün & Stok</h3>
             <input type="text" id="gTitle" placeholder="Oyun Adı">
-            <input type="text" id="gPrice" placeholder="Fiyat (TL)">
+            <input type="text" id="gPrice" placeholder="Fiyat">
             <input type="text" id="gImg" placeholder="Resim URL">
-            <input type="text" id="gSecret" placeholder="Gizli Bilgi">
-            <select id="gCat">
-                <option value="Steam">Steam</option>
-                <option value="Valorant">Valorant</option>
-                <option value="Roblox">Roblox</option>
-            </select>
-            <button class="btn" style="width:100%;" onclick="addGame()">MAĞAZAYA EKLE</button>
+            <input type="text" id="gSecret" placeholder="Müşteri Bilgisi">
+            <input type="number" id="gStok" placeholder="Başlangıç Stoğu (Sayı)">
+            <button class="btn" style="width:100%;" onclick="addGame()">EKLE</button>
         </div>
         <div>
-            <h3>⚙️ Ayarlar (Müzik & Çark)</h3>
-            <label>Çark Ödülleri (virgülle ayır):</label>
-            <input type="text" id="wheelRewards" placeholder="Örn: 10TL, Key, Pas">
-            <label>Müzik MP3 Linki:</label>
-            <input type="text" id="musicUrl" placeholder="MP3 Link Yapıştır">
-            <button class="btn" style="width:100%; background:var(--accent);" onclick="updateSettings()">KAYDET</button>
+            <h3>💬 Yorum Ekle</h3>
+            <input type="text" id="revName" placeholder="Müşteri Adı">
+            <textarea id="revText" placeholder="Yorumu buraya yaz..."></textarea>
+            <button class="btn" style="width:100%; background:var(--accent);" onclick="addReview()">YORUMU YAYINLA</button>
         </div>
         <div>
-            <h3>🔑 Key Deposu</h3>
-            <textarea id="keyList" style="height:100px;" placeholder="Her satıra bir key..."></textarea>
-            <button class="btn" style="width:100%; background:#444;" onclick="updateKeys()">GÜNCELLE</button>
+            <h3>🎵 Müzik & Çark</h3>
+            <input type="text" id="musicUrl" placeholder="MP3 Linkini Buraya Yapıştır">
+            <input type="text" id="wheelRewards" placeholder="Ödülleri virgülle ayır">
+            <button class="btn" style="width:100%;" onclick="updateSettings()">KAYDET</button>
+            <h4 style="margin-bottom:5px;">🔑 Key Deposu</h4>
+            <textarea id="keyList" style="height:60px;" placeholder="Her satıra bir key..."></textarea>
+            <button class="btn" style="width:100%; background:#444;" onclick="updateKeys()">KEYLERİ GÜNCELLE</button>
         </div>
     </div>
 </div>
 
 <div class="wheel-box" id="daily-wheel">
     <h3 style="color:var(--neon);">🎡 GÜNLÜK ŞANS ÇARKI</h3>
-    <p id="wheel-msg">Ödülünü kazanmak için tıkla!</p>
-    <button class="btn" id="spin-btn" onclick="spinWheel()">ÇARKI ÇEVİR</button>
+    <p id="wheel-msg">Giriş yaptın! Ödülünü almayı unutma.</p>
+    <button class="btn" id="spin-btn" onclick="spinWheel()">ÇEVİR</button>
 </div>
 
 <div class="container" id="gameGrid"></div>
 
+<div class="reviews-section">
+    <h2 style="color:var(--neon);">⭐ MÜŞTERİ DEĞERLENDİRMELERİ</h2>
+    <div id="reviewsGrid"></div>
+</div>
+
 <div id="auth-modal" class="modal">
     <h2 style="text-align:center; color:var(--neon);">Giriş Yap</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">MAĞAZAYA GİR</button>
+    <button class="btn" style="width:100%;" onclick="handleLogin()">GİRİŞ</button>
 </div>
 
 <div id="key-modal" class="modal">
     <h2 style="text-align:center;">Ürünü Al</h2>
-    <input type="text" id="keyInp" placeholder="Key girin">
+    <input type="text" id="keyInp" placeholder="Key gir">
     <button class="btn" style="width:100%;" onclick="useKey()">ONAYLA</button>
-    <button class="btn" style="width:100%; margin-top:5px; background:#444;" onclick="closeModals()">İPTAL</button>
 </div>
 
 <script>
@@ -113,33 +126,46 @@
     window.onload = () => {
         if(currentUser) { setupUI(); document.getElementById('daily-wheel').style.display = 'block'; checkWheelStatus(); } 
         else openModal('auth-modal');
-        listenData();
-        loadSettings();
-        startFakeSales();
+        listenData(); loadSettings(); startFakeSales();
     };
 
     function handleLogin() {
         const u = document.getElementById('uName').value.trim();
-        const p = prompt("Giriş Şifresi:");
+        const p = prompt("Şifre:");
         if(u.toLowerCase() === adminUser.toLowerCase() && p === adminPass) { localStorage.setItem('user', adminUser); location.reload(); }
         else if(u && p === customerPass) { localStorage.setItem('user', u); location.reload(); }
-        else alert("Hatalı Giriş!");
+        else alert("Hatalı!");
     }
 
     function listenData() {
+        // Oyunlar ve Stoklar
         db.ref('games').on('value', s => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const games = s.val() || {};
             Object.keys(games).forEach(id => {
                 const g = games[id];
                 grid.innerHTML += `<div class="game-card">
-                    ${currentUser === adminUser ? `<button onclick="deleteGame('${id}')" style="position:absolute; right:5px; top:5px; background:red; color:white; border:none; cursor:pointer;">X</button>` : ''}
+                    <div class="stok-tag">STOK: ${g.stok || 0}</div>
+                    ${currentUser === adminUser ? `<button onclick="deleteItem('games/${id}')" style="position:absolute; right:5px; top:5px; background:red; color:white;">X</button>` : ''}
                     <img src="${g.img || 'https://via.placeholder.com/300x160'}">
                     <div style="padding:15px;">
                         <h3>${g.title}</h3>
                         <p style="color:var(--accent); font-weight:bold;">${g.price} TL</p>
-                        <button class="btn" style="width:100%;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">Key Kullan</button>
+                        <button class="btn" style="width:100%;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', ${g.stok || 0})">Key Kullan</button>
                     </div></div>`;
+            });
+        });
+        // Yorumlar
+        db.ref('reviews').on('value', s => {
+            const revGrid = document.getElementById('reviewsGrid'); revGrid.innerHTML = "";
+            const revs = s.val() || {};
+            Object.keys(revs).forEach(id => {
+                const r = revs[id];
+                revGrid.innerHTML += `<div class="review-card">
+                    <strong>👤 ${r.name}</strong><br><small>⭐⭐⭐⭐⭐</small>
+                    <p style="font-size:14px; color:#ccc;">${r.text}</p>
+                    ${currentUser === adminUser ? `<button onclick="deleteItem('reviews/${id}')" style="background:none; color:red; border:none; cursor:pointer;">[SİL]</button>` : ''}
+                </div>`;
             });
         });
         if(currentUser === adminUser) db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
@@ -148,19 +174,15 @@
     function spinWheel() {
         const today = new Date().toDateString().replace(/\s/g, "");
         db.ref('wheelLog/' + currentUser + '/' + today).once('value', s => {
-            if (s.exists() && currentUser !== adminUser) {
-                alert("Bugün hakkını kullandın kanka, yarın gel!");
-                return;
-            }
+            if (s.exists() && currentUser !== adminUser) return alert("Yarın tekrar gel kanka!");
             const btn = document.getElementById('spin-btn');
             btn.disabled = true; btn.innerText = "DÖNÜYOR...";
             db.ref('settings/wheel').once('value', snapshot => {
-                const rewards = (snapshot.val() || "Üzgünüm,Pas,Key").split(',');
+                const rewards = (snapshot.val() || "Key,Pas").split(',');
                 setTimeout(() => {
                     const win = rewards[Math.floor(Math.random() * rewards.length)];
                     document.getElementById('wheel-msg').innerHTML = `🎉 KAZANDIN: <b style="color:var(--neon)">${win}</b>`;
                     db.ref('wheelLog/' + currentUser + '/' + today).set(true);
-                    btn.innerText = "HAKKIN BİTTİ";
                 }, 2000);
             });
         });
@@ -177,10 +199,30 @@
         });
     }
 
+    function toggleMusic() {
+        const m = document.getElementById('bg-music');
+        if(!isPlaying) { 
+            m.play().catch(() => alert("Müzik linki hatalı veya tarayıcı engelledi!")); 
+            isPlaying = true; document.getElementById('music-btn').innerText = "⏸️"; 
+        } else { m.pause(); isPlaying = false; document.getElementById('music-btn').innerText = "🎵"; }
+    }
+
+    function addGame() {
+        const title = document.getElementById('gTitle').value, price = document.getElementById('gPrice').value;
+        const img = document.getElementById('gImg').value, secret = document.getElementById('gSecret').value;
+        const stok = document.getElementById('gStok').value;
+        db.ref('games').push({ title, price, img, secret, stok: parseInt(stok) }); alert("Ürün Eklendi!");
+    }
+
+    function addReview() {
+        const name = document.getElementById('revName').value, text = document.getElementById('revText').value;
+        db.ref('reviews').push({ name, text }); alert("Yorum Eklendi!");
+    }
+
     function updateSettings() {
         db.ref('settings/wheel').set(document.getElementById('wheelRewards').value);
         db.ref('settings/music').set(document.getElementById('musicUrl').value);
-        alert("Ayarlar Kaydedildi!");
+        alert("Güncellendi! Sayfayı yenileyin.");
     }
 
     function loadSettings() {
@@ -194,53 +236,37 @@
         });
     }
 
-    function startFakeSales() {
-        const n = ["Efe", "Arda", "Can", "Mert", "Selin"];
-        setInterval(() => {
-            if(Math.random() > 0.8 && currentUser) {
-                showToast(`🔥 ${n[Math.floor(Math.random()*n.length)]} az önce bir ürün aldı!`);
-            }
-        }, 12000);
+    function prepareKey(id, title, secret, currentStok) {
+        if(currentStok <= 0) return alert("Üzgünüz, bu ürünün stoğu tükenmiş!");
+        targetGame = { id, title, secret, stok: currentStok };
+        openModal('key-modal');
     }
 
-    function showToast(msg) {
-        const t = document.getElementById('notification-toast');
-        t.innerText = msg; t.style.display = 'block';
-        setTimeout(() => { t.style.display = 'none'; }, 4000);
-    }
-
-    function toggleMusic() {
-        const m = document.getElementById('bg-music');
-        if(!isPlaying) { m.play(); isPlaying = true; document.getElementById('music-btn').innerText = "⏸️"; }
-        else { m.pause(); isPlaying = false; document.getElementById('music-btn').innerText = "🎵"; }
-    }
-
-    function setupUI() {
-        document.getElementById('user-controls').innerHTML = `<button class="btn" onclick="toggleAdmin()">${currentUser}</button> ${currentUser === adminUser ? '<button class="btn" style="background:#333;" onclick="localStorage.clear();location.reload();">ÇIKIŞ</button>':''}`;
-    }
-    
-    function toggleAdmin() { if(currentUser === adminUser) { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function addGame() {
-        const title = document.getElementById('gTitle').value, price = document.getElementById('gPrice').value;
-        const img = document.getElementById('gImg').value, secret = document.getElementById('gSecret').value;
-        const category = document.getElementById('gCat').value;
-        db.ref('games').push({ title, price, img, secret, category }); alert("Eklendi!");
-    }
-    function deleteGame(id) { db.ref('games/' + id).remove(); }
-    function updateKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(k => k.trim())); alert("Depo Güncellendi!"); }
-    function prepareKey(id, title, secret, img) { targetGame = { id, title, secret, img }; openModal('key-modal'); }
     function useKey() {
         const inp = document.getElementById('keyInp').value.trim();
         db.ref('keys').once('value', s => {
             let k = s.val() || []; const idx = k.indexOf(inp);
             if(idx > -1) {
                 k.splice(idx, 1); db.ref('keys').set(k);
-                alert("BAŞARILI! Ürün Bilgisi: " + targetGame.secret); closeModals();
+                // Stoğu bir düşür
+                db.ref('games/' + targetGame.id + '/stok').set(targetGame.stok - 1);
+                alert("BAŞARILI! Bilginiz: " + targetGame.secret); closeModals();
             } else alert("GEÇERSİZ KEY!");
         });
     }
+
+    function startFakeSales() {
+        const names = ["Berke", "Yusuf", "Emir", "Caner"];
+        setInterval(() => { if(Math.random() > 0.8 && currentUser) showToast(`🔥 ${names[Math.floor(Math.random()*names.length)]} bir alışveriş yaptı!`); }, 15000);
+    }
+
+    function showToast(msg) { const t = document.getElementById('notification-toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display='none', 4000); }
+    function deleteItem(path) { if(confirm("Emin misin?")) db.ref(path).remove(); }
+    function setupUI() { document.getElementById('user-controls').innerHTML = `<button class="btn" onclick="toggleAdmin()">${currentUser}</button> ${currentUser === adminUser ? '<button class="btn" onclick="localStorage.clear();location.reload();">ÇIKIŞ</button>':''}`; }
+    function toggleAdmin() { if(currentUser === adminUser) { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
     function closeModals() { if(!currentUser) return; document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
+    function updateKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(k => k.trim())); alert("Kaydedildi!"); }
 </script>
 </body>
 </html>
