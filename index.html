@@ -27,6 +27,7 @@
             padding-bottom: 50px; 
         }
 
+        /* Navigasyon */
         nav {
             background: var(--nav-bg); 
             padding: 10px 30px; 
@@ -49,7 +50,7 @@
             font-weight: bold;
             transition: 0.3s;
         }
-        .btn:hover { opacity: 0.8; transform: scale(1.05); }
+        .btn:hover { opacity: 0.8; transform: scale(1.02); }
 
         /* Profil Menüsü */
         .profile-container { position: relative; display: inline-block; }
@@ -76,7 +77,7 @@
         }
         .profile-menu a:hover { background: #2c2f33; color: var(--primary); }
 
-        /* Paneller */
+        /* Admin & Kütüphane Panelleri */
         #admin-panel, #library-panel {
             display: none; 
             background: #23272a; 
@@ -85,7 +86,7 @@
             text-align: center;
         }
 
-        /* Oyun Kartları */
+        /* Kartlar */
         .container { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -151,6 +152,7 @@
             width: 100%; 
             box-sizing: border-box;
             color: #333;
+            font-family: inherit;
         }
     </style>
 </head>
@@ -166,16 +168,18 @@
 </nav>
 
 <div id="admin-panel">
-    <h3 style="color: var(--accent);">👑 Admin Paneli</h3>
-    <p style="font-size: 12px;">Keyleri alt alta girin ve "Keyleri Kaydet"e basın.</p>
-    <textarea id="keyList" placeholder="Örn:&#10;KEY-1&#10;KEY-2"></textarea>
-    <button class="btn" style="background:#555; width:100%; margin-bottom:15px;" onclick="updateKeys()">Keyleri Kaydet</button>
-    <hr style="border:0.5px solid #444;">
-    <input type="text" id="gTitle" placeholder="Oyun Adı">
-    <input type="text" id="gPrice" placeholder="Fiyat (TL)">
-    <input type="text" id="gImg" placeholder="Resim Linki (URL)">
-    <input type="text" id="gSecret" placeholder="Gizli Bilgi (Müşteriye verilecek)">
-    <button class="btn" style="background:var(--accent); width:100%;" onclick="addGame()">Oyunu Mağazaya Ekle</button>
+    <h3 style="color: var(--accent);">👑 Yönetici Paneli</h3>
+    <p style="font-size: 12px;">Satılacak Keyleri buraya girin (Her satıra bir tane):</p>
+    <textarea id="keyList" placeholder="KEY-ABC-123&#10;KEY-XYZ-456"></textarea>
+    <button class="btn" style="background:#555; width:100%; margin-bottom:15px;" onclick="updateKeys()">Key Listesini Güncelle</button>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <input type="text" id="gTitle" placeholder="Oyun Adı">
+        <input type="text" id="gPrice" placeholder="Fiyat (TL)">
+        <input type="text" id="gImg" placeholder="Resim Linki">
+        <input type="text" id="gSecret" placeholder="Gizli Hesap/Bilgi">
+    </div>
+    <button class="btn" style="background:var(--accent); width:100%; margin-top:10px;" onclick="addGame()">Oyunu Mağazaya Ekle</button>
 </div>
 
 <div id="library-panel">
@@ -185,23 +189,22 @@
 </div>
 
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center">Giriş Yap</h2>
-    <input type="text" id="uName" placeholder="Kullanıcı Adınız">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="login()">Giriş</button>
+    <h2 style="text-align:center">Hoş Geldiniz</h2>
+    <input type="text" id="uName" placeholder="Kullanıcı Adı">
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">Giriş Yap</button>
 </div>
 
 <div id="key-modal" class="modal">
-    <h2 style="text-align:center">Key Kullan</h2>
-    <p style="font-size:12px; color:#aaa;">Oyunu almak için geçerli bir key girin.</p>
-    <input type="text" id="keyInp" placeholder="Keyinizi yapıştırın">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Onayla</button>
+    <h2 style="text-align:center">Key Onayla</h2>
+    <p style="font-size:12px; color:#aaa;">Bu ürünü aktif etmek için geçerli keyi girin.</p>
+    <input type="text" id="keyInp" placeholder="Keyinizi buraya yapıştırın">
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Doğrula ve Ekle</button>
 </div>
 
-<div class="container" id="gameGrid">
-    </div>
+<div class="container" id="gameGrid"></div>
 
 <script>
-    // --- SENİN FOTOĞRAFTAKİ FİREBASE BİLGİLERİN ---
+    // --- FİREBASE YAPILANDIRMASI (Senin bilgilerini buraya çaktım) ---
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -212,10 +215,12 @@
         appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
     };
 
-    // Firebase'i Başlat
+    // --- ADMİN AYARLARI ---
+    const adminUser = "Swascshop";
+    const adminPass = "12345"; // İstediğin zaman değiştirebilirsin
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     let currentUser = localStorage.getItem('user');
     let targetGame = null;
 
@@ -224,19 +229,36 @@
         if(currentUser) setupUI();
     };
 
+    function handleLogin() {
+        const u = document.getElementById('uName').value.trim();
+        if(!u) return alert("İsim girmelisin!");
+
+        if(u === adminUser) {
+            const p = prompt("Yönetici Şifresi:");
+            if(p === adminPass) {
+                localStorage.setItem('user', u);
+                location.reload();
+            } else {
+                alert("Şifre yanlış!");
+            }
+        } else {
+            localStorage.setItem('user', u);
+            location.reload();
+        }
+    }
+
     function listenData() {
-        // Mağazadaki Oyunları Canlı Getir
+        // Oyunları Canlı Dinle
         db.ref('games').on('value', snapshot => {
             const games = snapshot.val() || {};
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = "";
-            
             Object.keys(games).forEach(id => {
                 const g = games[id];
                 grid.innerHTML += `
                     <div class="game-card">
-                        ${currentUser === 'Swascshop' ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
-                        <img src="${g.img || 'https://via.placeholder.com/300x160?text=Oyun'}">
+                        ${currentUser === adminUser ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
+                        <img src="${g.img || 'https://via.placeholder.com/300x160'}">
                         <div class="game-info">
                             <h3 style="margin:0;">${g.title}</h3>
                             <p style="color:var(--accent); font-weight:bold;">${g.price} TL</p>
@@ -246,20 +268,12 @@
             });
         });
 
-        // Keyleri Sadece Admin Görebilsin
-        if(currentUser === 'Swascshop') {
+        // Keyleri Dinle (Sadece Admin)
+        if(currentUser === adminUser) {
             db.ref('keys').on('value', snapshot => {
-                const keys = snapshot.val() || [];
-                document.getElementById('keyList').value = keys.join('\n');
+                document.getElementById('keyList').value = (snapshot.val() || []).join('\n');
             });
         }
-    }
-
-    function login() {
-        const u = document.getElementById('uName').value.trim();
-        if(!u) return;
-        localStorage.setItem('user', u);
-        location.reload();
     }
 
     function setupUI() {
@@ -268,9 +282,9 @@
             <div class="profile-container">
                 <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
                 <div id="pMenu" class="profile-menu">
-                    <a onclick="showLibrary()">Kütüphanem</a>
-                    ${currentUser === 'Swascshop' ? '<a onclick="showAdmin()">Admin</a>' : ''}
-                    <a onclick="logout()">Çıkış</a>
+                    <a onclick="showLibrary()">📚 Kütüphanem</a>
+                    ${currentUser === adminUser ? '<a onclick="showAdmin()">👑 Admin Paneli</a>' : ''}
+                    <a onclick="localStorage.clear(); location.reload();" style="color:var(--danger)">🚪 Çıkış</a>
                 </div>
             </div>`;
     }
@@ -280,41 +294,26 @@
         m.style.display = m.style.display === 'block' ? 'none' : 'block';
     }
 
-    function showAdmin() {
-        document.getElementById('admin-panel').style.display = 'block';
-        toggleMenu();
-    }
-
-    function logout() {
-        localStorage.removeItem('user');
-        location.reload();
-    }
+    function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; toggleMenu(); }
 
     function addGame() {
         const title = document.getElementById('gTitle').value;
         const price = document.getElementById('gPrice').value;
         const img = document.getElementById('gImg').value;
         const secret = document.getElementById('gSecret').value;
-
         if(title && secret) {
             db.ref('games').push({ title, price, img, secret });
             alert("Oyun başarıyla mağazaya eklendi!");
             document.getElementById('gTitle').value = "";
             document.getElementById('gSecret').value = "";
-        } else {
-            alert("Oyun adı ve Gizli bilgi zorunludur!");
-        }
+        } else { alert("Ad ve Gizli Bilgi zorunludur!"); }
     }
 
-    function deleteGame(id) {
-        if(confirm("Bu oyunu silmek istediğine emin misin?")) {
-            db.ref('games/' + id).remove();
-        }
-    }
+    function deleteGame(id) { if(confirm("Bu oyun kaldırılsın mı?")) db.ref('games/' + id).remove(); }
 
     function updateKeys() {
-        const kList = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k);
-        db.ref('keys').set(kList);
+        const keys = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k);
+        db.ref('keys').set(keys);
         alert("Key listesi güncellendi!");
     }
 
@@ -329,16 +328,13 @@
         db.ref('keys').once('value', snapshot => {
             let currentKeys = snapshot.val() || [];
             const idx = currentKeys.indexOf(input);
-
             if(idx > -1) {
                 currentKeys.splice(idx, 1);
                 db.ref('keys').set(currentKeys);
                 db.ref('libraries/' + currentUser).push(targetGame);
-                alert("Oyun kütüphanene eklendi!");
+                alert("BAŞARILI! Ürün kütüphanene eklendi.");
                 closeModals();
-            } else {
-                alert("Geçersiz veya kullanılmış key!");
-            }
+            } else { alert("GEÇERSİZ KEY! Lütfen tekrar kontrol edin."); }
         });
     }
 
@@ -352,16 +348,16 @@
             Object.values(data).forEach(g => {
                 content.innerHTML += `
                     <div class="game-card">
-                        <img src="${g.img || 'https://via.placeholder.com/300x160'}">
+                        <img src="${g.img}">
                         <div class="game-info">
                             <h3>${g.title}</h3>
-                            <div style="background:#000; padding:10px; border:1px dashed var(--accent); color:var(--accent); font-size:12px;">
+                            <div style="background:#000; padding:10px; border:1px dashed var(--accent); font-size:12px; color:var(--accent);">
                                 <strong>GİZLİ BİLGİ:</strong><br>${g.secret}
                             </div>
                         </div>
                     </div>`;
             });
-            if(Object.keys(data).length === 0) content.innerHTML = "<p>Henüz oyunun yok.</p>";
+            if(Object.keys(data).length === 0) content.innerHTML = "<p>Kütüphanen henüz boş.</p>";
         });
     }
 
