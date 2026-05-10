@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swascshop | Global Oyun Mağazası</title>
     
-    <!-- Firebase Bağlantısı (Kütüphaneler) -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 
@@ -28,7 +27,6 @@
             padding-bottom: 50px; 
         }
 
-        /* --- Navigasyon ve Profil --- */
         nav {
             background: var(--nav-bg); 
             padding: 10px 30px; 
@@ -51,8 +49,9 @@
             font-weight: bold;
             transition: 0.3s;
         }
-        .btn:hover { opacity: 0.8; }
+        .btn:hover { opacity: 0.8; transform: scale(1.05); }
 
+        /* Profil Menüsü */
         .profile-container { position: relative; display: inline-block; }
         .profile-menu {
             display: none; 
@@ -77,7 +76,7 @@
         }
         .profile-menu a:hover { background: #2c2f33; color: var(--primary); }
 
-        /* --- Paneller --- */
+        /* Paneller */
         #admin-panel, #library-panel {
             display: none; 
             background: #23272a; 
@@ -86,7 +85,7 @@
             text-align: center;
         }
 
-        /* --- Oyun Kartları --- */
+        /* Oyun Kartları */
         .container { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -101,7 +100,7 @@
             position: relative; 
             transition: 0.3s;
         }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .game-card:hover { border-color: var(--primary); }
         .game-card img { width: 100%; height: 160px; object-fit: cover; }
         .game-info { padding: 15px; }
 
@@ -115,9 +114,10 @@
             padding: 5px 10px; 
             border-radius: 5px; 
             cursor: pointer; 
+            z-index: 10;
         }
 
-        /* --- Modallar --- */
+        /* Modallar */
         .modal {
             display: none; 
             position: fixed; 
@@ -150,8 +150,8 @@
             background: #eee; 
             width: 100%; 
             box-sizing: border-box;
+            color: #333;
         }
-        textarea { height: 100px; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -159,66 +159,60 @@
 <div id="overlay" class="overlay" onclick="closeModals()"></div>
 
 <nav>
-    <div class="logo"><h1 style="margin:0; color:var(--primary);">Swascshop</h1></div>
+    <div class="logo"><h1 style="margin:0; color:var(--primary); cursor:pointer;" onclick="location.reload()">Swascshop</h1></div>
     <div id="user-controls">
         <button class="btn" onclick="openModal('auth-modal')">Giriş Yap</button>
     </div>
 </nav>
 
-<!-- Admin Paneli -->
 <div id="admin-panel">
-    <h3 style="color: var(--accent);">👑 Yönetici Kontrol Paneli</h3>
-    <div style="max-width: 600px; margin: 0 auto;">
-        <p>Satış Keyleri (Her satıra bir tane):</p>
-        <textarea id="keyList" placeholder="Örn:&#10;KEY-123&#10;KEY-456" onchange="updateKeys()"></textarea>
-        <hr style="border:0.5px solid #444; margin:20px 0;">
-        <input type="text" id="gTitle" placeholder="Oyun Adı">
-        <input type="text" id="gPrice" placeholder="Fiyat (TL)">
-        <input type="text" id="gImg" placeholder="Resim Linki (URL)">
-        <input type="text" id="gSecret" placeholder="Gizli Bilgi (Hesap/Link)">
-        <button class="btn" style="background:var(--accent); width:100%;" onclick="addGame()">Yeni Oyun Ekle</button>
-    </div>
+    <h3 style="color: var(--accent);">👑 Admin Paneli</h3>
+    <p style="font-size: 12px;">Keyleri alt alta girin ve "Keyleri Kaydet"e basın.</p>
+    <textarea id="keyList" placeholder="Örn:&#10;KEY-1&#10;KEY-2"></textarea>
+    <button class="btn" style="background:#555; width:100%; margin-bottom:15px;" onclick="updateKeys()">Keyleri Kaydet</button>
+    <hr style="border:0.5px solid #444;">
+    <input type="text" id="gTitle" placeholder="Oyun Adı">
+    <input type="text" id="gPrice" placeholder="Fiyat (TL)">
+    <input type="text" id="gImg" placeholder="Resim Linki (URL)">
+    <input type="text" id="gSecret" placeholder="Gizli Bilgi (Müşteriye verilecek)">
+    <button class="btn" style="background:var(--accent); width:100%;" onclick="addGame()">Oyunu Mağazaya Ekle</button>
 </div>
 
-<!-- Kütüphane Paneli -->
 <div id="library-panel">
     <h2 style="color: var(--primary);">📚 Kütüphanem</h2>
-    <div id="library-content" class="container" style="padding:10px;"></div>
-    <button class="btn" style="background:#444" onclick="document.getElementById('library-panel').style.display='none'">Kapat</button>
+    <div id="library-content" class="container"></div>
+    <button class="btn" onclick="document.getElementById('library-panel').style.display='none'">Kapat</button>
 </div>
 
-<!-- Modallar -->
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center">Hoş Geldiniz</h2>
-    <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="login()">Hızlı Giriş</button>
+    <h2 style="text-align:center">Giriş Yap</h2>
+    <input type="text" id="uName" placeholder="Kullanıcı Adınız">
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="login()">Giriş</button>
 </div>
 
 <div id="key-modal" class="modal">
-    <h2 style="text-align:center">Key Doğrula</h2>
-    <p style="font-size:13px; color:#aaa;">Bu oyunu kütüphanenize eklemek için İtemSatış'tan aldığınız kodu girin.</p>
-    <input type="text" id="keyInp" placeholder="Keyi buraya yapıştır">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Doğrula ve Aktif Et</button>
+    <h2 style="text-align:center">Key Kullan</h2>
+    <p style="font-size:12px; color:#aaa;">Oyunu almak için geçerli bir key girin.</p>
+    <input type="text" id="keyInp" placeholder="Keyinizi yapıştırın">
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Onayla</button>
 </div>
 
 <div class="container" id="gameGrid">
-    <!-- Oyunlar Buraya Gelecek -->
-</div>
+    </div>
 
 <script>
-    // --- BURAYI KENDİ BİLGİLERİNLE DOLDUR (Firebase -> Project Settings) ---
+    // --- SENİN FOTOĞRAFTAKİ FİREBASE BİLGİLERİN ---
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-        projectId: "YOUR_PROJECT",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
+        authDomain: "swascshop.firebaseapp.com",
+        databaseURL: "https://swascshop-default-rtdb.firebaseio.com",
+        projectId: "swascshop",
+        storageBucket: "swascshop.firebasestorage.app",
+        messagingSenderId: "132240652717",
+        appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
     };
-    // -----------------------------------------------------------------------
 
-    // Firebase Başlat
+    // Firebase'i Başlat
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -230,9 +224,8 @@
         if(currentUser) setupUI();
     };
 
-    // Firebase'den Verileri Canlı Dinle
     function listenData() {
-        // Oyun Listesi
+        // Mağazadaki Oyunları Canlı Getir
         db.ref('games').on('value', snapshot => {
             const games = snapshot.val() || {};
             const grid = document.getElementById('gameGrid');
@@ -253,18 +246,18 @@
             });
         });
 
-        // Key Listesi (Sadece Admin Görür)
+        // Keyleri Sadece Admin Görebilsin
         if(currentUser === 'Swascshop') {
             db.ref('keys').on('value', snapshot => {
-                const kList = snapshot.val() || [];
-                document.getElementById('keyList').value = kList.join('\n');
+                const keys = snapshot.val() || [];
+                document.getElementById('keyList').value = keys.join('\n');
             });
         }
     }
 
     function login() {
         const u = document.getElementById('uName').value.trim();
-        if(!u) return alert("İsim yazmalısın!");
+        if(!u) return;
         localStorage.setItem('user', u);
         location.reload();
     }
@@ -275,9 +268,9 @@
             <div class="profile-container">
                 <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
                 <div id="pMenu" class="profile-menu">
-                    <a onclick="showLibrary()">📚 Kütüphanem</a>
-                    ${currentUser === 'Swascshop' ? '<a onclick="showAdmin()">👑 Admin Panel</a>' : ''}
-                    <a onclick="logout()" style="color:var(--danger)">🚪 Çıkış Yap</a>
+                    <a onclick="showLibrary()">Kütüphanem</a>
+                    ${currentUser === 'Swascshop' ? '<a onclick="showAdmin()">Admin</a>' : ''}
+                    <a onclick="logout()">Çıkış</a>
                 </div>
             </div>`;
     }
@@ -297,22 +290,20 @@
         location.reload();
     }
 
-    // --- Admin İşlemleri ---
     function addGame() {
         const title = document.getElementById('gTitle').value;
         const price = document.getElementById('gPrice').value;
         const img = document.getElementById('gImg').value;
         const secret = document.getElementById('gSecret').value;
 
-        if(!title || !secret) return alert("Oyun adı ve Gizli bilgi boş olamaz!");
-
-        db.ref('games').push({ title, price, img, secret });
-        alert("Oyun başarıyla eklendi ve tüm dünyada yayına girdi!");
-        
-        // Formu temizle
-        document.getElementById('gTitle').value = "";
-        document.getElementById('gPrice').value = "";
-        document.getElementById('gSecret').value = "";
+        if(title && secret) {
+            db.ref('games').push({ title, price, img, secret });
+            alert("Oyun başarıyla mağazaya eklendi!");
+            document.getElementById('gTitle').value = "";
+            document.getElementById('gSecret').value = "";
+        } else {
+            alert("Oyun adı ve Gizli bilgi zorunludur!");
+        }
     }
 
     function deleteGame(id) {
@@ -322,11 +313,11 @@
     }
 
     function updateKeys() {
-        const keyArray = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k !== "");
-        db.ref('keys').set(keyArray);
+        const kList = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k);
+        db.ref('keys').set(kList);
+        alert("Key listesi güncellendi!");
     }
 
-    // --- Müşteri İşlemleri ---
     function prepareKey(id, title, secret, img) {
         if(!currentUser) return openModal('auth-modal');
         targetGame = { id, title, secret, img };
@@ -334,25 +325,19 @@
     }
 
     function useKey() {
-        const inputKey = document.getElementById('keyInp').value.trim();
-        if(!inputKey) return alert("Key girmelisin!");
-
+        const input = document.getElementById('keyInp').value.trim();
         db.ref('keys').once('value', snapshot => {
             let currentKeys = snapshot.val() || [];
-            const idx = currentKeys.indexOf(inputKey);
+            const idx = currentKeys.indexOf(input);
 
             if(idx > -1) {
-                // Keyi sil
                 currentKeys.splice(idx, 1);
                 db.ref('keys').set(currentKeys);
-                
-                // Kütüphaneye ekle
                 db.ref('libraries/' + currentUser).push(targetGame);
-                
-                alert("MÜJDE! Oyun kütüphanene eklendi. Hesabım > Kütüphanem kısmından bilgilere ulaşabilirsin.");
+                alert("Oyun kütüphanene eklendi!");
                 closeModals();
             } else {
-                alert("HATA: Bu key geçersiz veya daha önce kullanılmış!");
+                alert("Geçersiz veya kullanılmış key!");
             }
         });
     }
@@ -360,37 +345,28 @@
     function showLibrary() {
         document.getElementById('library-panel').style.display = 'block';
         toggleMenu();
-        
         db.ref('libraries/' + currentUser).on('value', snapshot => {
             const data = snapshot.val() || {};
             const content = document.getElementById('library-content');
             content.innerHTML = "";
-            
             Object.values(data).forEach(g => {
                 content.innerHTML += `
                     <div class="game-card">
                         <img src="${g.img || 'https://via.placeholder.com/300x160'}">
                         <div class="game-info">
-                            <h3 style="margin:0;">${g.title}</h3>
-                            <div style="background:#000; padding:10px; margin-top:10px; border:1px dashed var(--accent); color:var(--accent); font-size:12px; word-break:break-all;">
-                                <strong>GİZLİ BİLGİ/LİNK:</strong><br>${g.secret}
+                            <h3>${g.title}</h3>
+                            <div style="background:#000; padding:10px; border:1px dashed var(--accent); color:var(--accent); font-size:12px;">
+                                <strong>GİZLİ BİLGİ:</strong><br>${g.secret}
                             </div>
                         </div>
                     </div>`;
             });
-            if(Object.keys(data).length === 0) content.innerHTML = "<p>Henüz hiç oyunun yok. Bir key kullanarak başlayabilirsin!</p>";
+            if(Object.keys(data).length === 0) content.innerHTML = "<p>Henüz oyunun yok.</p>";
         });
     }
 
-    function openModal(id) {
-        document.getElementById(id).style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }
-
-    function closeModals() {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        document.getElementById('overlay').style.display = 'none';
-    }
+    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
 </script>
 
 </body>
