@@ -279,7 +279,42 @@
     function saveWheel() { db.ref('settings/wheel').set(document.getElementById('wheelRewards').value); alert("Çark ödülleri güncellendi!"); }
     function saveKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(x => x.trim())); alert("Key listesi kaydedildi!"); }
     function saveMusic() { db.ref('settings/music').set(document.getElementById('musicUrl').value); alert("Müzik güncellendi!"); }
-    function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }
+    function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }<div id="shop" class="section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+        <h2 style="color:var(--neon); margin: 0;">🛒 OYUNUNU SEÇ</h2>
+        
+        <div style="position: relative; width: 100%; max-width: 400px;">
+            <input type="text" id="gameSearch" placeholder="Oyun ara... (Örn: God of War)" 
+                   style="margin: 0; padding: 12px 40px 12px 15px; border: 2px solid var(--neon); border-radius: 25px; background: rgba(0,0,0,0.7);"
+                   onkeyup="searchGames()">
+            <span style="position: absolute; right: 15px; top: 12px; font-size: 18px;">🔍</span>
+        </div>
+    </div>
+    
+    <div class="container" id="gameGrid"></div>
+</div>
+
+<script>
+    // --- ARAMA FONKSİYONU ---
+    function searchGames() {
+        const input = document.getElementById('gameSearch').value.toLowerCase();
+        const cards = document.getElementsByClassName('game-card');
+
+        for (let i = 0; i < cards.length; i++) {
+            // Kartın içindeki başlığı (H3) kontrol et
+            const title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+            
+            if (title.includes(input)) {
+                cards[i].style.display = "block"; // Eşleşiyorsa göster
+            } else {
+                cards[i].style.display = "none";  // Eşleşmiyorsa gizle
+            }
+        }
+    }
+
+    // Not: Mevcut loadData fonksiyonun içindeki oyun kartı oluşturma kısmını 
+    // değiştirmene gerek yok, class="game-card" olduğu sürece bu arama motoru her şeyi bulur.
+</script>
 </script>
 </body>
 </html>
