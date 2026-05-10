@@ -2,120 +2,108 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Full Control v11</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swascshop | Mobile Fix v12</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+        * { box-sizing: border-box; touch-action: manipulation; } /* Mobil tıklama hızı için */
         
-        #top-announcement { background: #ff4655; color: white; text-align: center; padding: 12px; font-weight: bold; position: relative; z-index: 1001; }
-        nav { background: rgba(0,0,0,0.95); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; }
-        .logo h1 { margin:0; color:var(--neon); cursor: pointer; text-shadow: 0 0 10px var(--neon); }
-        .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
+        
+        /* DUYURU BANDI */
+        #top-announcement { background: #ff4655; color: white; text-align: center; padding: 12px; font-weight: bold; position: relative; z-index: 100; }
 
-        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); z-index: 1500; position: relative; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .admin-box { background: #2a2a2e; padding: 15px; border-radius: 12px; border: 1px solid #444; }
+        nav { background: rgba(0,0,0,0.95); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; }
+        .logo h1 { margin:0; color:var(--neon); font-size: 20px; text-shadow: 0 0 10px var(--neon); cursor: pointer; }
+        .nav-links button { background: none; border: none; color: white; margin: 0 5px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
 
-        .section { display: none; padding: 40px; max-width: 1200px; margin: auto; animation: fadeIn 0.5s; }
+        /* ADMİN PANELİ */
+        #admin-panel { display: none; background: #1f1f23; padding: 20px; border-bottom: 5px solid var(--neon); position: relative; z-index: 1100; }
+
+        .section { display: none; padding: 20px; max-width: 1200px; margin: auto; }
         .active { display: block !important; }
 
-        input, textarea { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; background: #000; width: 100%; color: white; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
-
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; position: relative; }
+        input, textarea { padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #000; width: 100%; color: white; font-size: 16px; } /* Mobilde zoom yapmaması için 16px */
         
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ff4655; color: white; border: none; border-radius: 5px; cursor: pointer; padding: 5px 8px; font-size: 10px; font-weight: bold; }
+        .btn { 
+            background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; 
+            cursor: pointer; font-weight: bold; width: 100%; display: block; 
+            position: relative; z-index: 5; /* Butonların tıklanabilir olması için */
+        }
+        .btn:active { transform: scale(0.98); background: var(--neon); }
 
-        #fake-review-toast { position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; padding: 15px; border-radius: 8px; z-index: 9999; width: 280px; transition: left 0.8s; }
-        #fake-review-toast.show { left: 20px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; } /* Mobilde yan yana 2 kart için */
+        .game-card { background: var(--card-bg); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: center; position: relative; }
+        
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: #ff4655; color: white; border: none; border-radius: 5px; padding: 5px; z-index: 10; }
 
-        .review-card { background: #1a1a1a; padding: 15px; border-radius: 10px; border-bottom: 2px solid var(--neon); width: 280px; position: relative; }
+        /* MODAL VE OVERLAY DÜZENLEME */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; display: none; }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 320px; border: 2px solid var(--neon); display: none; }
-        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 25px; border-radius: 20px; z-index: 9000; width: 90%; max-width: 350px; border: 2px solid var(--neon); display: none; }
+
+        #fake-review-toast { 
+            position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; 
+            padding: 15px; border-radius: 8px; z-index: 5000; width: 280px; transition: 0.5s;
+            pointer-events: none; /* Mobilde butonların üzerine gelse bile tıklamayı engellemez */
+        }
+        #fake-review-toast.show { left: 20px; }
     </style>
 </head>
 <body>
 
 <div id="top-announcement">📢 DEĞERLENDİRME YAPANA 1 KEY BEDAVA!</div>
-<div id="fake-review-toast">
-    <div style="color: gold; font-weight: bold; margin-bottom: 5px;">⭐ YENİ YORUM</div>
-    <div id="toast-content" style="font-size: 14px;"></div>
-</div>
+<div id="fake-review-toast"><div id="toast-content"></div></div>
 
 <div id="overlay" class="overlay"></div>
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center; color:var(--neon);">Swascshop Giriş</h2>
+    <h2 style="text-align:center; color:var(--neon);">Giriş</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" onclick="handleLogin()">GİRİŞ</button>
+    <button class="btn" onclick="handleLogin()">GİRİŞ YAP</button>
 </div>
 
 <nav>
-    <div class="logo"><h1 onclick="showSection('home')">SWASCSHOP</h1></div>
+    <div class="logo"><h1 onclick="showSection('home')">SWASC</h1></div>
     <div class="nav-links">
-        <button onclick="showSection('home')">ANA SAYFA</button>
-        <button onclick="showSection('verify')">DOĞRULA</button>
-        <button onclick="showSection('shop')">MAĞAZA</button>
+        <button onclick="showSection('home')">ANA</button>
+        <button onclick="showSection('verify')">KEY</button>
+        <button onclick="showSection('shop')">MARKET</button>
         <button onclick="showSection('library')">KÜTÜPHANE</button>
     </div>
     <div id="user-controls"></div>
 </nav>
 
 <div id="admin-panel">
-    <h2 style="text-align:center; color:var(--neon);">👑 YÖNETİCİ PANELİ</h2>
     <div class="admin-grid">
         <div class="admin-box">
             <h3>📦 Oyun Ekle</h3>
             <input type="text" id="gTitle" placeholder="Oyun Adı">
-            <input type="text" id="gSecret" placeholder="Hesap Bilgisi">
-            <button class="btn" onclick="addGame()">SİSTEME EKLE</button>
+            <input type="text" id="gSecret" placeholder="Hesap">
+            <button class="btn" onclick="addGame()">EKLE</button>
         </div>
         <div class="admin-box">
-            <h3>⭐ Fake Yorum Ekle</h3>
-            <input type="text" id="revName" placeholder="Kişi İsmi">
-            <textarea id="revText" placeholder="Yorum metni..."></textarea>
-            <button class="btn" style="background:var(--accent);" onclick="manualReview()">YAYINLA</button>
-        </div>
-        <div class="admin-box">
-            <h3>🔑 Key Havuzu</h3>
-            <textarea id="keyList" style="height:80px;" placeholder="Alt alta keyler..."></textarea>
-            <button class="btn" onclick="saveKeys()">KAYDET</button>
+            <h3>⭐ Yorum Ekle</h3>
+            <input type="text" id="revName" placeholder="İsim">
+            <textarea id="revText" placeholder="Yorum"></textarea>
+            <button class="btn" onclick="manualReview()">YAYINLA</button>
         </div>
     </div>
 </div>
 
-<div id="home" class="section active">
-    <h2 style="text-align:center;">Müşteri Değerlendirmeleri</h2>
-    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
-</div>
-
+<div id="home" class="section active"><div id="reviewsGrid"></div></div>
 <div id="verify" class="section">
-    <div style="max-width:400px; margin:auto; background:var(--card-bg); padding:30px; border-radius:15px; text-align:center; border:1px solid var(--accent);">
-        <h2>ANAHTAR DOĞRULA</h2>
-        <input type="text" id="verifyKey" placeholder="KEY-XXXX">
-        <button class="btn" onclick="checkKey()" style="background:var(--accent);">ONAYLA</button>
-    </div>
+    <input type="text" id="verifyKey" placeholder="ANAHTAR">
+    <button class="btn" onclick="checkKey()">ONAYLA</button>
 </div>
-
 <div id="shop" class="section">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items: center;">
-        <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
-        <input type="text" id="gameSearch" placeholder="Oyun ara..." style="width:200px;" onkeyup="searchGames()">
-    </div>
+    <input type="text" id="gameSearch" placeholder="Ara..." onkeyup="searchGames()">
     <div class="container" id="gameGrid"></div>
 </div>
-
-<div id="library" class="section">
-    <h2 style="color:var(--warning);">📚 KÜTÜPHANEM</h2>
-    <div id="libraryGrid"></div>
-</div>
+<div id="library" class="section"><div id="libraryGrid"></div></div>
 
 <script>
+    // Firebase Config (Aynı kalsın)
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -133,7 +121,7 @@
     let allReviews = [];
 
     window.onload = () => {
-        if(currentUser) { loginSuccess(currentUser); } 
+        if(currentUser) loginSuccess(currentUser);
         else { document.getElementById('overlay').style.display = 'block'; document.getElementById('auth-modal').style.display = 'block'; }
     };
 
@@ -143,127 +131,74 @@
         if((u === "Swascshop" && p === "12345") || (u && p === "shop2026")) {
             localStorage.setItem('user', u);
             location.reload();
-        } else alert("Hatalı!");
+        } else alert("Hata!");
     }
 
     function loginSuccess(user) {
         currentUser = user;
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('auth-modal').style.display = 'none';
-        document.getElementById('user-controls').innerHTML = `<button class="btn" style="width:auto;" onclick="toggleAdmin()">👤 ${user}</button>`;
-        loadGlobalData();
-        startFakeReviewLoop();
+        document.getElementById('user-controls').innerHTML = `<button onclick="toggleAdmin()" style="background:none; border:none; color:var(--neon); font-weight:bold;">👤 ${user}</button>`;
+        loadData();
     }
 
-    function loadGlobalData() {
-        // Oyunlar ve Silme Butonu
+    function loadData() {
         db.ref('games').on('value', s => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
-                const g = data[id];
-                grid.innerHTML += `
-                    <div class="game-card">
-                        ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('games/${id}')">SİL</button>` : ''}
-                        <h3>${g.title}</h3>
-                        <button class="btn" onclick="claimGame('${id}','${g.title}','${g.secret}')">SEÇ</button>
-                    </div>`;
+                grid.innerHTML += `<div class="game-card">
+                    ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('games/${id}')">X</button>` : ''}
+                    <h3>${data[id].title}</h3>
+                    <button class="btn" onclick="claimGame('${id}','${data[id].title}','${data[id].secret}')">SEÇ</button>
+                </div>`;
             });
         });
-
-        // Yorumlar ve Silme Butonu
+        
         db.ref('reviews').on('value', s => {
             const grid = document.getElementById('reviewsGrid'); grid.innerHTML = "";
-            allReviews = [];
-            const data = s.val() || {};
-            Object.keys(data).forEach(id => {
-                const r = data[id];
-                allReviews.push(r);
-                grid.innerHTML += `
-                    <div class="review-card">
-                        ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('reviews/${id}')">SİL</button>` : ''}
-                        <strong>👤 ${r.name}</strong><br>
-                        <span style="color:gold;">⭐⭐⭐⭐⭐</span>
-                        <p style="font-size:14px;">"${r.text}"</p>
-                    </div>`;
+            allReviews = Object.values(s.val() || {});
+            allReviews.forEach(r => {
+                grid.innerHTML += `<div class="review-card"><strong>${r.name}</strong><p>${r.text}</p></div>`;
             });
         });
 
-        // Kütüphane
         db.ref('users/' + currentUser + '/library').on('value', s => {
             const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
-                grid.innerHTML += `<div style="background:#111; padding:15px; margin-bottom:10px; border-left:5px solid var(--neon);"><b>${data[id].title}</b><br>Bilgi: ${data[id].secret}</div>`;
+                grid.innerHTML += `<div style="border-left:4px solid var(--neon); padding:10px; margin:5px;"><b>${data[id].title}</b><br>${data[id].secret}</div>`;
             });
         });
-
-        if(currentUser === "Swascshop") {
-            db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
-        }
     }
 
-    function deleteItem(path) {
-        if(confirm("Bu içeriği silmek istediğine emin misin?")) {
-            db.ref(path).remove().then(() => alert("Başarıyla silindi!"));
-        }
-    }
-
-    function addGame() {
-        const t = document.getElementById('gTitle').value, s = document.getElementById('gSecret').value;
-        if(t && s) db.ref('games').push({title: t, secret: s}).then(() => alert("Eklendi!"));
-    }
-
-    function manualReview() {
-        const n = document.getElementById('revName').value, t = document.getElementById('revText').value;
-        if(n && t) db.ref('reviews').push({name: n, text: t}).then(() => alert("Yayınlandı!"));
+    function claimGame(id, title, secret) {
+        db.ref('users/' + currentUser + '/library').push({title, secret}).then(() => {
+            isVerified = false; 
+            alert("Eklendi!"); 
+            showSection('library');
+        }).catch(err => alert("Hata: " + err));
     }
 
     function showSection(id) {
-        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") { alert("Önce key doğrula!"); return; }
+        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") return alert("Key lazım!");
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-    }
-
-    function saveKeys() {
-        const k = document.getElementById('keyList').value.split('\n').filter(x => x.trim());
-        db.ref('keys').set(k).then(() => alert("Keyler güncellendi!"));
     }
 
     function checkKey() {
         const k = document.getElementById('verifyKey').value.trim();
         db.ref('keys').once('value', s => {
             let keys = s.val() || [];
-            const i = keys.indexOf(k);
-            if(i > -1) {
-                keys.splice(i, 1); db.ref('keys').set(keys);
-                isVerified = true; alert("Onaylandı!"); showSection('shop');
-            } else alert("Geçersiz Key!");
+            if(keys.includes(k)) {
+                keys.splice(keys.indexOf(k), 1); db.ref('keys').set(keys);
+                isVerified = true; alert("Mağaza açıldı!"); showSection('shop');
+            } else alert("Geçersiz!");
         });
     }
 
-    function claimGame(id, title, secret) {
-        db.ref('users/' + currentUser + '/library').push({title, secret});
-        isVerified = false; alert("Kütüphaneye eklendi!"); showSection('library');
-    }
-
-    function startFakeReviewLoop() {
-        const showToast = () => {
-            if(allReviews.length === 0) return;
-            const r = allReviews[Math.floor(Math.random() * allReviews.length)];
-            const t = document.getElementById('fake-review-toast');
-            document.getElementById('toast-content').innerHTML = `<b>${r.name}:</b> "${r.text}"`;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 120000);
-        };
-        setInterval(showToast, 600000);
-    }
-
     function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function searchGames() {
-        const val = document.getElementById('gameSearch').value.toLowerCase();
-        document.querySelectorAll('.game-card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(val) ? "block" : "none"; });
-    }
+    function addGame() { db.ref('games').push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value}); }
+    function manualReview() { db.ref('reviews').push({name: document.getElementById('revName').value, text: document.getElementById('revText').value}); }
+    function deleteItem(path) { if(confirm("Sil?")) db.ref(path).remove(); }
 </script>
 </body>
 </html>
