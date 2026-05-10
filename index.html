@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OyunKey | Swascshop Official</title>
+    <title>OyunKey | Swascshop Pro</title>
     <style>
         :root {
             --primary: #7289da;
@@ -14,9 +14,8 @@
             --danger: #ff4747;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
 
-        /* Navigasyon */
         nav {
             background: #000; padding: 15px 30px; display: flex;
             justify-content: space-between; align-items: center;
@@ -28,14 +27,12 @@
             padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
         }
 
-        /* Admin Paneli */
         #admin-panel {
             display: none; background: #23272a; padding: 20px;
             border-bottom: 3px solid var(--accent); text-align: center;
         }
-        #admin-panel input { padding: 8px; margin: 5px; border-radius: 5px; border: none; width: 180px; }
+        #admin-panel input { padding: 8px; margin: 5px; border-radius: 5px; border: none; width: 180px; background: #eee; }
 
-        /* Modal */
         .modal {
             display: none; position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%); background: var(--card-bg);
@@ -52,9 +49,9 @@
         .game-card img { width: 100%; height: 160px; object-fit: cover; }
         .game-info { padding: 15px; }
 
-        .secret-info { display: none; background: #000; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; color: var(--accent); border: 1px dashed var(--accent); }
+        .secret-info { display: none; background: #000; padding: 10px; margin-top: 10px; border-radius: 5px; color: var(--accent); border: 1px dashed var(--accent); word-break: break-all; }
         
-        .delete-btn { display: none; position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .delete-btn { display: none; position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 5; }
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; }
     </style>
@@ -66,21 +63,22 @@
 <nav>
     <div class="logo"><h1>OyunKey</h1></div>
     <div id="user-controls">
-        <button class="btn" onclick="openModal('auth-modal')">Giriş / Kayıt</button>
+        <button id="main-btn" class="btn" onclick="openModal('auth-modal')">Giriş / Kayıt</button>
     </div>
 </nav>
 
-<!-- Admin Paneli -->
 <div id="admin-panel">
     <h3 style="color: var(--accent);">Yönetici Paneli (Swascshop)</h3>
+    <p>Genel Satış Keyi: <input type="text" id="globalKey" placeholder="Örn: SHOP-2026" onchange="saveGlobalKey()"> (Tüm oyunlar için tek key)</p>
+    <hr style="border: 0.5px solid #444">
     <input type="text" id="gTitle" placeholder="Oyun Adı">
     <input type="text" id="gPrice" placeholder="Fiyat">
-    <input type="text" id="gKey" placeholder="Geçerli Key (Şifre)">
-    <input type="text" id="gSecret" placeholder="Gizli Bilgi (Link vb.)">
-    <button class="btn" style="background: var(--accent);" onclick="createNewGame()">Ekle</button>
+    <input type="text" id="gImg" placeholder="Resim URL">
+    <input type="text" id="gSecret" placeholder="Gizli Bilgi / Link">
+    <button class="btn" style="background: var(--accent);" onclick="addGame()">Oyunu Ekle</button>
+    <button class="btn" style="background: #444; margin-left: 10px;" onclick="logout()">Güvenli Çıkış</button>
 </div>
 
-<!-- Giriş Modalı -->
 <div id="auth-modal" class="modal">
     <h2 style="text-align:center">Giriş</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı" style="width:90%; padding:10px; margin-bottom:10px;">
@@ -88,31 +86,41 @@
     <button class="btn" style="width:100%" onclick="login()">Giriş Yap</button>
 </div>
 
-<!-- Key Doğrulama Modalı -->
 <div id="key-modal" class="modal">
     <h2 style="text-align:center">Key Doğrula</h2>
-    <p style="font-size:0.8rem; color:#aaa">İtemSatış'tan aldığınız kodu girin.</p>
-    <input type="text" id="keyInp" placeholder="Örn: XXXX-XXXX" style="width:90%; padding:10px; margin-bottom:20px;">
-    <button class="btn" style="width:100%" onclick="verifyKey()">Onayla</button>
+    <p style="text-align:center; color:#ccc; font-size:0.9rem;">Bu oyunun içeriğini açmak için keyinizi girin.</p>
+    <input type="text" id="keyInp" placeholder="Keyi buraya yapıştır" style="width:90%; padding:10px; margin-bottom:20px;">
+    <button class="btn" style="width:100%" onclick="verifyKey()">Kullan ve Bilgileri Gör</button>
 </div>
 
-<div class="container" id="gameGrid">
-    <!-- Örnek Oyun -->
-    <div class="game-card" id="ex1" data-key="LGS2026" data-secret="Hesap Bilgileri: user:admin / pass:123">
-        <button class="delete-btn" onclick="this.parentElement.remove()">SİL</button>
-        <img src="https://images.alphacoders.com/129/1291122.jpg">
-        <div class="game-info">
-            <h3>Modern Warfare 2</h3>
-            <p style="color:var(--accent)">450 TL</p>
-            <button class="btn" style="width:100%; background:#444" onclick="targetGame='ex1'; openModal('key-modal')">Key Gir ve Bilgileri Al</button>
-            <div class="secret-info" id="info-ex1"></div>
-        </div>
-    </div>
-</div>
+<div class="container" id="gameGrid"></div>
 
 <script>
-    let targetGame = "";
-    let isLogged = false;
+    let targetGameId = "";
+    let games = JSON.parse(localStorage.getItem('games')) || [];
+    let validKey = localStorage.getItem('globalKey') || "SWASCSHOP-KEY";
+
+    // Sayfa Yüklendiğinde
+    window.onload = function() {
+        renderGames();
+        checkSession();
+        document.getElementById('globalKey').value = validKey;
+    };
+
+    function checkSession() {
+        const loginTime = localStorage.getItem('loginTime');
+        const now = new Date().getTime();
+        const threeDays = 3 * 24 * 60 * 60 * 1000;
+
+        if (loginTime && (now - loginTime < threeDays)) {
+            const user = localStorage.getItem('username');
+            if(user === "Swascshop") {
+                activateAdmin();
+            } else {
+                document.getElementById('user-controls').innerHTML = `<span>Hoş geldin, ${user}</span>`;
+            }
+        }
+    }
 
     function openModal(id) {
         document.getElementById(id).style.display = 'block';
@@ -129,59 +137,88 @@
         const p = document.getElementById('uPass').value;
 
         if(u === "Swascshop" && p === "159357yzgt") {
-            alert("Hoş geldin Swascshop!");
-            document.getElementById('admin-panel').style.display = 'block';
-            document.querySelectorAll('.delete-btn').forEach(b => b.style.display = 'block');
-            document.getElementById('user-controls').innerHTML = "<b>Admin: Swascshop</b>";
+            localStorage.setItem('loginTime', new Date().getTime());
+            localStorage.setItem('username', u);
+            activateAdmin();
             closeModals();
         } else {
-            alert("Giriş yapıldı: " + u);
-            isLogged = true;
+            localStorage.setItem('loginTime', new Date().getTime());
+            localStorage.setItem('username', u);
+            document.getElementById('user-controls').innerHTML = `<span>Hoş geldin, ${u}</span>`;
             closeModals();
         }
     }
 
-    function createNewGame() {
+    function activateAdmin() {
+        document.getElementById('admin-panel').style.display = 'block';
+        document.getElementById('user-controls').innerHTML = `<b style="color:var(--accent)">Admin: Swascshop</b>`;
+        renderGames(); // Silme butonlarını göstermek için tekrar render
+    }
+
+    function logout() {
+        localStorage.removeItem('loginTime');
+        localStorage.removeItem('username');
+        location.reload();
+    }
+
+    function saveGlobalKey() {
+        validKey = document.getElementById('globalKey').value;
+        localStorage.setItem('globalKey', validKey);
+    }
+
+    function addGame() {
         const t = document.getElementById('gTitle').value;
         const p = document.getElementById('gPrice').value;
-        const k = document.getElementById('gKey').value;
+        const i = document.getElementById('gImg').value || 'https://via.placeholder.com/300x160/222/fff?text=Oyun';
         const s = document.getElementById('gSecret').value;
-        const id = 'g-' + Date.now();
 
-        if(t && k) {
-            const html = `
-            <div class="game-card" id="${id}" data-key="${k}" data-secret="${s}">
-                <button class="delete-btn" style="display:block" onclick="this.parentElement.remove()">SİL</button>
-                <img src="https://via.placeholder.com/300x160/222/fff?text=Oyun">
+        if(t && p) {
+            const newGame = { id: 'g' + Date.now(), title: t, price: p, img: i, secret: s };
+            games.push(newGame);
+            localStorage.setItem('games', JSON.stringify(games));
+            renderGames();
+            alert("Oyun başarıyla eklendi!");
+        }
+    }
+
+    function deleteGame(id) {
+        if(confirm("Bu oyunu kalıcı olarak silmek istiyor musun?")) {
+            games = games.filter(g => g.id !== id);
+            localStorage.setItem('games', JSON.stringify(games));
+            renderGames();
+        }
+    }
+
+    function renderGames() {
+        const grid = document.getElementById('gameGrid');
+        grid.innerHTML = "";
+        const isAdmin = localStorage.getItem('username') === "Swascshop";
+
+        games.forEach(g => {
+            grid.innerHTML += `
+            <div class="game-card" id="${g.id}">
+                <button class="delete-btn" style="display:${isAdmin ? 'block' : 'none'}" onclick="deleteGame('${g.id}')">SİL</button>
+                <img src="${g.img}">
                 <div class="game-info">
-                    <h3>${t}</h3>
-                    <p style="color:var(--accent)">${p} TL</p>
-                    <button class="btn" style="width:100%; background:#444" onclick="targetGame='${id}'; openModal('key-modal')">Key Gir ve Bilgileri Al</button>
-                    <div class="secret-info" id="info-${id}"></div>
+                    <h3>${g.title}</h3>
+                    <p style="color:var(--accent)">${g.price} TL</p>
+                    <button class="btn" style="width:100%; background:#333" onclick="targetGameId='${g.id}'; openModal('key-modal')">Key Kullan ve Bilgileri Al</button>
+                    <div class="secret-info" id="info-${g.id}">${g.secret}</div>
                 </div>
             </div>`;
-            document.getElementById('gameGrid').innerHTML += html;
-            alert("Oyun ve Key başarıyla eklendi!");
-        }
+        });
     }
 
     function verifyKey() {
         const input = document.getElementById('keyInp').value;
-        const game = document.getElementById(targetGame);
-        const correctKey = game.getAttribute('data-key');
-        const secret = game.getAttribute('data-secret');
-
-        if(input === correctKey) {
-            alert("Key Doğrulandı! Bilgiler aşağıda açıldı.");
-            const infoDiv = document.getElementById('info-' + targetGame);
-            infoDiv.innerText = secret;
-            infoDiv.style.display = 'block';
+        if(input === validKey) {
+            alert("Harika! Oyun bilgileri açıldı.");
+            document.getElementById('info-' + targetGameId).style.display = 'block';
             closeModals();
         } else {
-            alert("Hatalı Key! Lütfen tekrar deneyin.");
+            alert("Hatalı key!");
         }
     }
 </script>
-
 </body>
 </html>
