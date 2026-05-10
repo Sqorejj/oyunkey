@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OyunKey | Swascshop Dashboard</title>
+    <title>OyunKey | Swascshop Official</title>
     <style>
         :root {
             --primary: #7289da;
@@ -14,263 +14,172 @@
             --danger: #ff4747;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
 
         /* Navigasyon */
         nav {
-            background: #000;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: #000; padding: 15px 30px; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000;
         }
-
-        .logo h1 { margin: 0; color: var(--primary); font-size: 24px; letter-spacing: 1px; }
-
-        .search-bar input {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            background: #222;
-            color: white;
-            width: 280px;
-            outline: none;
-        }
-
-        /* Admin Paneli Bölümü */
-        #admin-panel {
-            display: none;
-            background: #23272a;
-            padding: 20px;
-            border-bottom: 3px solid var(--accent);
-            text-align: center;
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-
-        #admin-panel input { padding: 10px; margin: 5px; border-radius: 5px; border: none; width: 200px; }
-
-        /* Giriş & Kayıt Modalı */
-        #auth-modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
-            z-index: 2000;
-            width: 340px;
-        }
-
-        .tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #333; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; transition: 0.3s; color: #888; }
-        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
-
-        .auth-input { width: 93%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; }
 
         .btn {
             background: var(--primary); color: white; border: none;
-            padding: 12px 25px; border-radius: 8px; cursor: pointer;
-            font-weight: bold; transition: 0.3s;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
         }
-        .btn:hover { opacity: 0.8; transform: scale(1.02); }
 
-        /* Oyun Kartları */
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
-            padding: 40px;
+        /* Admin Paneli */
+        #admin-panel {
+            display: none; background: #23272a; padding: 20px;
+            border-bottom: 3px solid var(--accent); text-align: center;
         }
+        #admin-panel input { padding: 8px; margin: 5px; border-radius: 5px; border: none; width: 180px; }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: var(--card-bg);
+            padding: 30px; border-radius: 15px; box-shadow: 0 0 50px #000; z-index: 2000; width: 320px;
+        }
+
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 40px; }
 
         .game-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            transition: 0.4s;
-            border: 1px solid #222;
+            background: var(--card-bg); border-radius: 15px; overflow: hidden;
+            border: 1px solid #222; position: relative; transition: 0.3s;
         }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .game-card img { width: 100%; height: 160px; object-fit: cover; }
+        .game-info { padding: 15px; }
 
-        .game-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+        .secret-info { display: none; background: #000; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; color: var(--accent); border: 1px dashed var(--accent); }
+        
+        .delete-btn { display: none; position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
-        .game-card img { width: 100%; height: 170px; object-fit: cover; }
-
-        .game-info { padding: 20px; }
-        .game-info h3 { margin: 0 0 10px 0; }
-        .price { color: var(--accent); font-size: 1.4rem; font-weight: bold; }
-
-        .delete-btn {
-            display: none; /* Sadece admin girişiyle açılır */
-            position: absolute; top: 10px; right: 10px;
-            background: var(--danger); color: white; border: none;
-            padding: 8px 12px; border-radius: 8px; cursor: pointer; z-index: 10;
-        }
-
-        .overlay {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500;
-        }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; }
     </style>
 </head>
 <body>
 
-<div id="overlay" class="overlay" onclick="closeAuth()"></div>
+<div id="overlay" class="overlay" onclick="closeModals()"></div>
 
 <nav>
     <div class="logo"><h1>OyunKey</h1></div>
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Oyunlarda ara..." onkeyup="filterGames()">
-    </div>
     <div id="user-controls">
-        <button class="btn" onclick="openAuth()">Giriş Yap / Kayıt Ol</button>
+        <button class="btn" onclick="openModal('auth-modal')">Giriş / Kayıt</button>
     </div>
 </nav>
 
-<!-- Admin Paneli (Swascshop'a Özel) -->
+<!-- Admin Paneli -->
 <div id="admin-panel">
-    <h3 style="color: var(--accent);">👑 Yönetici Paneli - Hoş geldin Swascshop</h3>
-    <input type="text" id="gameTitle" placeholder="Oyunun Adı">
-    <input type="text" id="gamePrice" placeholder="Fiyat (Örn: 200 TL)">
-    <input type="text" id="gameImg" placeholder="Resim URL (Opsiyonel)">
-    <button class="btn" style="background: var(--accent);" onclick="addGame()">Mağazaya Ekle</button>
+    <h3 style="color: var(--accent);">Yönetici Paneli (Swascshop)</h3>
+    <input type="text" id="gTitle" placeholder="Oyun Adı">
+    <input type="text" id="gPrice" placeholder="Fiyat">
+    <input type="text" id="gKey" placeholder="Geçerli Key (Şifre)">
+    <input type="text" id="gSecret" placeholder="Gizli Bilgi (Link vb.)">
+    <button class="btn" style="background: var(--accent);" onclick="createNewGame()">Ekle</button>
 </div>
 
-<!-- Giriş & Kayıt Formu -->
-<div id="auth-modal">
-    <div class="tabs">
-        <div id="tab-login" class="tab active" onclick="switchMode('login')">Giriş</div>
-        <div id="tab-register" class="tab" onclick="switchMode('register')">Kayıt Ol</div>
-    </div>
-    <div id="auth-form">
-        <input type="text" id="userInp" class="auth-input" placeholder="Kullanıcı Adı">
-        <input type="password" id="passInp" class="auth-input" placeholder="Şifre">
-        <button id="main-auth-btn" class="btn" style="width:100%" onclick="processAuth()">Giriş Yap</button>
-    </div>
+<!-- Giriş Modalı -->
+<div id="auth-modal" class="modal">
+    <h2 style="text-align:center">Giriş</h2>
+    <input type="text" id="uName" placeholder="Kullanıcı Adı" style="width:90%; padding:10px; margin-bottom:10px;">
+    <input type="password" id="uPass" placeholder="Şifre" style="width:90%; padding:10px; margin-bottom:20px;">
+    <button class="btn" style="width:100%" onclick="login()">Giriş Yap</button>
+</div>
+
+<!-- Key Doğrulama Modalı -->
+<div id="key-modal" class="modal">
+    <h2 style="text-align:center">Key Doğrula</h2>
+    <p style="font-size:0.8rem; color:#aaa">İtemSatış'tan aldığınız kodu girin.</p>
+    <input type="text" id="keyInp" placeholder="Örn: XXXX-XXXX" style="width:90%; padding:10px; margin-bottom:20px;">
+    <button class="btn" style="width:100%" onclick="verifyKey()">Onayla</button>
 </div>
 
 <div class="container" id="gameGrid">
-    <!-- Başlangıç Oyunları -->
-    <div class="game-card" id="g1">
-        <button class="delete-btn" onclick="removeGame('g1')">SİL</button>
-        <img src="https://images.alphacoders.com/129/1291122.jpg" alt="MW2">
+    <!-- Örnek Oyun -->
+    <div class="game-card" id="ex1" data-key="LGS2026" data-secret="Hesap Bilgileri: user:admin / pass:123">
+        <button class="delete-btn" onclick="this.parentElement.remove()">SİL</button>
+        <img src="https://images.alphacoders.com/129/1291122.jpg">
         <div class="game-info">
             <h3>Modern Warfare 2</h3>
-            <div class="price">450 TL</div>
-        </div>
-    </div>
-    <div class="game-card" id="g2">
-        <button class="delete-btn" onclick="removeGame('g2')">SİL</button>
-        <img src="https://images.alphacoders.com/132/1321455.jpeg" alt="Brawl Stars">
-        <div class="game-info">
-            <h3>Brawl Stars</h3>
-            <div class="price">Ücretsiz</div>
+            <p style="color:var(--accent)">450 TL</p>
+            <button class="btn" style="width:100%; background:#444" onclick="targetGame='ex1'; openModal('key-modal')">Key Gir ve Bilgileri Al</button>
+            <div class="secret-info" id="info-ex1"></div>
         </div>
     </div>
 </div>
 
 <script>
-    let mode = 'login';
-    let isAdmin = false;
+    let targetGame = "";
+    let isLogged = false;
 
-    // Modal Kontrolleri
-    function openAuth() { 
-        document.getElementById('auth-modal').style.display = 'block'; 
+    function openModal(id) {
+        document.getElementById(id).style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
-    function closeAuth() { 
-        document.getElementById('auth-modal').style.display = 'none'; 
+
+    function closeModals() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         document.getElementById('overlay').style.display = 'none';
     }
 
-    function switchMode(newMode) {
-        mode = newMode;
-        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-        document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-        document.getElementById('main-auth-btn').innerText = mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol';
-    }
+    function login() {
+        const u = document.getElementById('uName').value;
+        const p = document.getElementById('uPass').value;
 
-    // Giriş & Kayıt İşlemi
-    function processAuth() {
-        const u = document.getElementById('userInp').value;
-        const p = document.getElementById('passInp').value;
-
-        if (mode === 'login') {
-            // KRİTİK: Senin yeni şifren ve ismin burada
-            if (u === "Swascshop" && p === "159357yzgt") {
-                alert("Selam Swascshop! Yönetici paneli açıldı.");
-                isAdmin = true;
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('user-controls').innerHTML = `<span style="color:var(--accent); font-weight:bold;">Admin: ${u}</span>`;
-                enableDeleteMode();
-                closeAuth();
-            } else if (u !== "" && p !== "") {
-                alert("Giriş yapıldı: " + u);
-                document.getElementById('user-controls').innerHTML = `<span>Üye: ${u}</span>`;
-                closeAuth();
-            }
+        if(u === "Swascshop" && p === "159357yzgt") {
+            alert("Hoş geldin Swascshop!");
+            document.getElementById('admin-panel').style.display = 'block';
+            document.querySelectorAll('.delete-btn').forEach(b => b.style.display = 'block');
+            document.getElementById('user-controls').innerHTML = "<b>Admin: Swascshop</b>";
+            closeModals();
         } else {
-            alert("Kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.");
-            switchMode('login');
+            alert("Giriş yapıldı: " + u);
+            isLogged = true;
+            closeModals();
         }
     }
 
-    // Oyun Yönetimi
-    function addGame() {
-        const t = document.getElementById('gameTitle').value;
-        const pr = document.getElementById('gamePrice').value;
-        const im = document.getElementById('gameImg').value || 'https://via.placeholder.com/300x170/222/fff?text=Oyun+Gorseli';
-        const id = 'game-' + Math.random().toString(36).substr(2, 9);
+    function createNewGame() {
+        const t = document.getElementById('gTitle').value;
+        const p = document.getElementById('gPrice').value;
+        const k = document.getElementById('gKey').value;
+        const s = document.getElementById('gSecret').value;
+        const id = 'g-' + Date.now();
 
-        if(t && pr) {
-            const grid = document.getElementById('gameGrid');
-            const cardHtml = `
-                <div class="game-card" id="${id}">
-                    <button class="delete-btn" style="display:block" onclick="removeGame('${id}')">SİL</button>
-                    <img src="${im}">
-                    <div class="game-info">
-                        <h3>${t}</h3>
-                        <div class="price">${pr}</div>
-                    </div>
-                </div>`;
-            grid.innerHTML += cardHtml;
-            alert("Oyun mağazaya eklendi!");
+        if(t && k) {
+            const html = `
+            <div class="game-card" id="${id}" data-key="${k}" data-secret="${s}">
+                <button class="delete-btn" style="display:block" onclick="this.parentElement.remove()">SİL</button>
+                <img src="https://via.placeholder.com/300x160/222/fff?text=Oyun">
+                <div class="game-info">
+                    <h3>${t}</h3>
+                    <p style="color:var(--accent)">${p} TL</p>
+                    <button class="btn" style="width:100%; background:#444" onclick="targetGame='${id}'; openModal('key-modal')">Key Gir ve Bilgileri Al</button>
+                    <div class="secret-info" id="info-${id}"></div>
+                </div>
+            </div>`;
+            document.getElementById('gameGrid').innerHTML += html;
+            alert("Oyun ve Key başarıyla eklendi!");
         }
     }
 
-    function removeGame(id) {
-        if(confirm("Bu oyunu silmek istediğine emin misin?")) {
-            document.getElementById(id).style.opacity = '0';
-            setTimeout(() => document.getElementById(id).remove(), 300);
+    function verifyKey() {
+        const input = document.getElementById('keyInp').value;
+        const game = document.getElementById(targetGame);
+        const correctKey = game.getAttribute('data-key');
+        const secret = game.getAttribute('data-secret');
+
+        if(input === correctKey) {
+            alert("Key Doğrulandı! Bilgiler aşağıda açıldı.");
+            const infoDiv = document.getElementById('info-' + targetGame);
+            infoDiv.innerText = secret;
+            infoDiv.style.display = 'block';
+            closeModals();
+        } else {
+            alert("Hatalı Key! Lütfen tekrar deneyin.");
         }
-    }
-
-    function enableDeleteMode() {
-        const btns = document.querySelectorAll('.delete-btn');
-        btns.forEach(b => b.style.display = 'block');
-    }
-
-    // Arama Motoru
-    function filterGames() {
-        let val = document.getElementById('searchInput').value.toLowerCase();
-        let cards = document.querySelectorAll('.game-card');
-        cards.forEach(c => {
-            let title = c.querySelector('h3').innerText.toLowerCase();
-            c.style.display = title.includes(val) ? "block" : "none";
-        });
     }
 </script>
 
