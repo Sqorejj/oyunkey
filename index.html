@@ -3,84 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Swascshop | PC & Mobil v13</title>
+    <title>Swascshop | Secure Key v14</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
-        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        * { box-sizing: border-box; touch-action: manipulation; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; }
 
-        /* ÜST DUYURU */
         #top-announcement { background: #ff4655; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 13px; position: sticky; top: 0; z-index: 1100; }
-
-        /* NAVİGASYON (PC ve Mobil Uyumlu) */
         nav { background: rgba(0,0,0,0.9); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); }
         .logo h1 { margin:0; color:var(--neon); font-size: 1.5rem; cursor: pointer; }
-        .nav-links { display: flex; gap: 10px; }
-        .nav-links button { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links button { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
 
-        /* ADMİN PANELİ */
         #admin-panel { display: none; background: #1f1f23; padding: 20px; border-bottom: 3px solid var(--neon); }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .admin-box { background: #2a2a2e; padding: 15px; border-radius: 10px; border: 1px solid #444; }
 
-        /* İÇERİK ALANLARI */
         .section { display: none; padding: 20px; width: 95%; max-width: 1200px; margin: auto; }
         .active { display: block !important; }
 
         input, textarea { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #444; background: #000; width: 100%; color: white; font-size: 16px; }
-
-        .btn { 
-            background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; 
-            cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; position: relative; z-index: 10;
-        }
+        .btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; position: relative; z-index: 10; }
         .btn:hover { background: var(--neon); }
-        .btn:active { transform: scale(0.95); }
 
-        /* OYUN KARTLARI (Responsive Izgara) */
-        .container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 20px; 
-            margin-top: 20px;
-        }
-        
-        /* MOBİL İÇİN AYAR (Ekran 600px'den küçükse yan yana 2 tane yap) */
-        @media (max-width: 600px) {
-            .container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .game-card h3 { font-size: 14px; }
-            .btn { padding: 10px; font-size: 12px; }
-            .nav-links { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-        }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        @media (max-width: 600px) { .container { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 
         .game-card { background: var(--card-bg); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: center; position: relative; }
-        .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 5px; padding: 5px 8px; z-index: 20; font-size: 10px; }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 5px; padding: 5px 8px; z-index: 20; font-size: 10px; cursor: pointer; }
 
-        /* FAKE YORUM BİLDİRİMİ (Mobilde Üste Çıkmasın) */
-        #fake-review-toast { 
-            position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; 
-            padding: 15px; border-radius: 8px; z-index: 5000; width: 260px; transition: 0.6s ease-in-out;
-            pointer-events: none; /* Tıklamayı engellemez */
-        }
-        #fake-review-toast.show { left: 15px; }
-
-        /* GİRİŞ EKRANI */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; display: none; }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 25px; border-radius: 20px; z-index: 9000; width: 90%; max-width: 340px; border: 2px solid var(--neon); display: none; }
+        
+        #current-keys-info { font-size: 12px; color: var(--accent); margin-top: 10px; max-height: 100px; overflow-y: auto; background: #111; padding: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div id="top-announcement">📢 LGS SONRASI OYUNLARDA %50 İNDİRİM!</div>
-<div id="fake-review-toast"><div id="toast-content"></div></div>
+<div id="top-announcement">📢 LGS SONRASI SWASCSHOP'TA DEV İNDİRİM!</div>
 
 <div id="overlay" class="overlay"></div>
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center; color:var(--neon);">Swascshop Giriş</h2>
+    <h2 style="text-align:center; color:var(--neon);">Giriş</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" onclick="handleLogin()">DÜKKANA GİR</button>
+    <button class="btn" onclick="handleLogin()">GİRİŞ YAP</button>
 </div>
 
 <nav>
@@ -98,21 +66,27 @@
     <div class="admin-grid">
         <div class="admin-box">
             <h3>📦 Oyun Ekle</h3>
-            <input type="text" id="gTitle" placeholder="Oyun İsmi">
-            <input type="text" id="gSecret" placeholder="Hesap Link/Kod">
-            <button class="btn" onclick="addGame()">EKLE</button>
+            <input type="text" id="gTitle" placeholder="Oyun Adı">
+            <input type="text" id="gSecret" placeholder="Hesap Bilgisi">
+            <button class="btn" onclick="addGame()">SİSTEME EKLE</button>
+        </div>
+        <div class="admin-box">
+            <h3>🔑 Key Havuzu</h3>
+            <textarea id="keyList" style="height:80px;" placeholder="Alt alta keyler..."></textarea>
+            <button class="btn" onclick="saveKeys()">GÜNCELLE</button>
+            <div id="current-keys-info">Yükleniyor...</div>
         </div>
         <div class="admin-box">
             <h3>⭐ Fake Yorum</h3>
-            <input type="text" id="revName" placeholder="Müşteri İsmi">
-            <textarea id="revText" placeholder="Yorum metni..."></textarea>
+            <input type="text" id="revName" placeholder="İsim">
+            <textarea id="revText" placeholder="Yorum..."></textarea>
             <button class="btn" onclick="manualReview()" style="background:var(--accent);">YAYINLA</button>
         </div>
     </div>
 </div>
 
 <div id="home" class="section active">
-    <h2 style="text-align:center;">Müşteri Memnuniyeti</h2>
+    <h2 style="text-align:center;">Müşteri Değerlendirmeleri</h2>
     <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"></div>
 </div>
 
@@ -120,7 +94,7 @@
     <div style="max-width:400px; margin:auto; background:#111; padding:20px; border-radius:15px; text-align:center;">
         <h2>DOĞRULAMA</h2>
         <input type="text" id="verifyKey" placeholder="KEY-XXXX">
-        <button class="btn" onclick="checkKey()">ONAYLA VE AÇ</button>
+        <button class="btn" onclick="checkKey()" style="background:var(--accent);">ONAYLA</button>
     </div>
 </div>
 
@@ -135,7 +109,7 @@
 </div>
 
 <script>
-    // Firebase Ayarların (Sabit)
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -150,7 +124,6 @@
     const db = firebase.database();
     let currentUser = localStorage.getItem('user');
     let isVerified = false;
-    let allReviews = [];
 
     window.onload = () => {
         if(currentUser) loginSuccess(currentUser);
@@ -163,14 +136,13 @@
         if((u === "Swascshop" && p === "12345") || (u && p === "shop2026")) {
             localStorage.setItem('user', u);
             location.reload();
-        } else alert("Yanlış Şifre!");
+        } else alert("Hata!");
     }
 
     function loginSuccess(user) {
         currentUser = user;
         document.getElementById('user-controls').innerHTML = `<button onclick="toggleAdmin()" style="background:none; border:none; color:var(--neon); font-weight:bold; cursor:pointer;">👤 ${user}</button>`;
         loadData();
-        startReviewLoop();
     }
 
     function loadData() {
@@ -187,12 +159,23 @@
             });
         });
 
+        // Key Havuzu (Canlı İzleme)
+        db.ref('keys').on('value', s => {
+            const keys = s.val() || [];
+            if(currentUser === "Swascshop") {
+                document.getElementById('current-keys-info').innerHTML = "<b>Aktif Keyler:</b><br>" + keys.join('<br>');
+            }
+        });
+
         // Yorumlar
         db.ref('reviews').on('value', s => {
             const grid = document.getElementById('reviewsGrid'); grid.innerHTML = "";
-            allReviews = Object.values(s.val() || {});
-            allReviews.forEach(r => {
-                grid.innerHTML += `<div style="background:#1a1a1a; padding:15px; border-radius:10px; min-width:200px;"><b>${r.name}</b><p style="font-size:13px;">${r.text}</p></div>`;
+            const data = s.val() || {};
+            Object.keys(data).forEach(id => {
+                grid.innerHTML += `<div style="background:#1a1a1a; padding:15px; border-radius:10px; width:250px;">
+                    ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('reviews/${id}')">X</button>` : ''}
+                    <b>👤 ${data[id].name}</b><p style="font-size:13px;">${data[id].text}</p>
+                </div>`;
             });
         });
 
@@ -206,46 +189,48 @@
         });
     }
 
-    function claimGame(id, title, secret) {
-        db.ref('users/' + currentUser + '/library').push({title, secret}).then(() => {
-            isVerified = false; 
-            alert("Oyun Kütüphaneye Eklendi!"); 
-            showSection('library');
+    function saveKeys() {
+        const text = document.getElementById('keyList').value;
+        const keys = text.split('\n').map(k => k.trim()).filter(k => k !== "");
+        db.ref('keys').set(keys).then(() => {
+            alert("Keyler başarıyla güncellendi!");
+            document.getElementById('keyList').value = "";
         });
-    }
-
-    function showSection(id) {
-        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") { alert("Önce Key Doğrula!"); return; }
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
     }
 
     function checkKey() {
         const k = document.getElementById('verifyKey').value.trim();
         db.ref('keys').once('value', s => {
             let keys = s.val() || [];
-            if(keys.includes(k)) {
-                keys.splice(keys.indexOf(k), 1); db.ref('keys').set(keys);
-                isVerified = true; alert("Anahtar Kabul Edildi!"); showSection('shop');
-            } else alert("Hatalı Anahtar!");
+            const index = keys.indexOf(k);
+            if(index > -1) {
+                keys.splice(index, 1);
+                db.ref('keys').set(keys).then(() => {
+                    isVerified = true;
+                    alert("Onaylandı! Mağaza açıldı.");
+                    showSection('shop');
+                });
+            } else alert("Geçersiz veya kullanılmış key!");
         });
     }
 
-    function startReviewLoop() {
-        const toast = document.getElementById('fake-review-toast');
-        setInterval(() => {
-            if(allReviews.length > 0) {
-                const r = allReviews[Math.floor(Math.random() * allReviews.length)];
-                document.getElementById('toast-content').innerHTML = `<b style="color:gold;">⭐ ${r.name}:</b><br>${r.text}`;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 5000); // 5 saniye göster
-            }
-        }, 30000); // 30 saniyede bir dene
+    function claimGame(id, title, secret) {
+        db.ref('users/' + currentUser + '/library').push({title, secret}).then(() => {
+            isVerified = false;
+            alert("Kütüphaneye eklendi!");
+            showSection('library');
+        });
+    }
+
+    function showSection(id) {
+        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") return alert("Önce Key!");
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 
     function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function addGame() { db.ref('games').push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value}); alert("Eklendi!"); }
-    function manualReview() { db.ref('reviews').push({name: document.getElementById('revName').value, text: document.getElementById('revText').value}); alert("Yayınlandı!"); }
+    function addGame() { db.ref('games').push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value}); }
+    function manualReview() { db.ref('reviews').push({name: document.getElementById('revName').value, text: document.getElementById('revText').value}); }
     function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }
     function searchGames() {
         const val = document.getElementById('gameSearch').value.toLowerCase();
