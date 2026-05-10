@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OyunKey</title>
+  <title>OyunKey - Dijital Oyun Mağazası</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #0f0f1a; color: #fff; min-height: 100vh; }
@@ -16,9 +16,11 @@
     .game-card:hover { transform: translateY(-10px); }
     .game-card img { width: 100%; height: 180px; object-fit: cover; }
     .game-info { padding: 15px; }
-    button { background: #00d4ff; color: black; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    button { background: #00d4ff; color: black; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
     button:hover { background: #00ffaa; }
-    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a2e; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; z-index: 1000; border: 2px solid #00ffaa; }
+    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a2e; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; z-index: 1000; border: 2px solid #00ffaa; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; }
+    .admin-badge { background: #ff00aa; color: white; padding: 5px 12px; border-radius: 20px; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -28,106 +30,109 @@
   <nav>
     <a onclick="showSection('home')">Ana Sayfa</a>
     <a onclick="showSection('verify')">🔑 Doğrula</a>
+    <span id="user-info"></span>
+    <a onclick="logout()" id="logout-btn" style="display:none; color:#ff6666;">Çıkış</a>
   </nav>
 </header>
 
-<div class="container">
-  <div id="home-section">
-    <h1>Popüler Oyunlar</h1><br>
-    <div class="game-grid" id="game-list"></div>
-  </div>
-
-  <div id="verify-section" style="display:none; text-align:center;">
-    <h1>Key Doğrula</h1>
-    <input type="text" id="key-input" placeholder="XXXX-XXXX-XXXX-XXXX" style="width:80%; padding:15px; font-size:18px;"/>
-    <br><br>
-    <button onclick="verifyKey()" style="padding:15px 40px; font-size:18px;">Doğrula</button>
-    <p id="verify-result" style="margin-top:20px; font-size:18px;"></p>
+<div class="container" id="main-content">
+  <!-- Giriş / Kayıt Sayfası -->
+  <div id="auth-section">
+    <h1>Giriş Yap</h1>
+    <input type="text" id="username" placeholder="Kullanıcı Adı" />
+    <input type="password" id="password" placeholder="Şifre" />
+    <button onclick="login()">Giriş Yap</button>
+    <p onclick="register()" style="cursor:pointer; color:#00ffaa; margin-top:15px;">Hesabın yok mu? Kayıt Ol</p>
   </div>
 </div>
 
-<div id="game-modal" class="modal">
-  <h2 id="modal-game-title"></h2>
-  <p id="modal-game-desc"></p>
-  <br>
-  <button onclick="closeModal()" style="background:#ff6666;">Kapat</button>
+<!-- Diğer sayfalar buraya eklenecek -->
+<div id="home-section" style="display:none;">
+  <h1>Popüler Oyunlar</h1><br>
+  <div class="game-grid" id="game-list"></div>
+</div>
+
+<div id="verify-section" style="display:none; text-align:center;">
+  <h1>Key Doğrula</h1>
+  <input type="text" id="key-input" placeholder="XXXX-XXXX-XXXX-XXXX" />
+  <br><br>
+  <button onclick="verifyKey()">Doğrula</button>
+  <p id="verify-result"></p>
+</div>
+
+<!-- Admin Panel Butonu (sadece admin görür) -->
+<div id="admin-btn" style="display:none; position:fixed; bottom:20px; right:20px;">
+  <button onclick="showAdminPanel()" class="admin-badge">👑 Admin Paneli</button>
 </div>
 
 <script>
-// ====================== OYUNLARI BURADAN DEĞİŞTİR ======================
-const games = [
-  {
-    id: 1,
-    title: "Cyberpunk 2077",
-    price: "299 TL",
-    img: "https://picsum.photos/id/1015/300/180",
-    desc: "Aksiyon dolu açık dünya RPG macerası. Gece Şehri'nde geçiyor."
-  },
-  {
-    id: 2,
-    title: "Elden Ring",
-    price: "249 TL",
-    img: "https://picsum.photos/id/237/300/180",
-    desc: "FromSoftware imzalı epik Souls-like oyun."
-  },
-  {
-    id: 3,
-    title: "Valorant",
-    price: "Ücretsiz",
-    img: "https://picsum.photos/id/201/300/180",
-    desc: "Taktiksel 5v5 FPS oyunu."
+// ====================== KULLANICI BİLGİLERİ ======================
+let currentUser = null;
+let isAdmin = false;
+
+// Demo hesaplar
+const users = {
+  "admin": { password: "12345", role: "admin" },
+  "test": { password: "1234", role: "user" }
+};
+
+// Oyunlar
+const games = [ /* önceki kodundaki oyunlar buraya gelecek */ ];
+
+function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (users[username] && users[username].password === password) {
+    currentUser = username;
+    isAdmin = users[username].role === "admin";
+
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('home-section').style.display = 'block';
+    document.getElementById('user-info').innerHTML = `👤 ${username} ${isAdmin ? '👑' : ''}`;
+    document.getElementById('logout-btn').style.display = 'inline';
+    
+    if (isAdmin) document.getElementById('admin-btn').style.display = 'block';
+    loadGames();
+  } else {
+    alert("❌ Kullanıcı adı veya şifre yanlış!");
   }
-  // Yeni oyun eklemek için virgül koyup aşağıya kopyala-yapıştır yap
-];
-// =====================================================================
-
-let activatedKeys = [];
-
-function loadGames() {
-  const container = document.getElementById('game-list');
-  container.innerHTML = '';
-  games.forEach(game => {
-    const card = document.createElement('div');
-    card.className = 'game-card';
-    card.innerHTML = `
-      <img src="${game.img}">
-      <div class="game-info">
-        <h3>${game.title}</h3>
-        <p><strong>${game.price}</strong></p>
-        <button onclick="showGameDetail(${game.id})">Detaylar</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
 }
 
-function showGameDetail(id) {
-  const game = games.find(g => g.id === id);
-  document.getElementById('modal-game-title').textContent = game.title;
-  document.getElementById('modal-game-desc').textContent = game.desc;
-  document.getElementById('game-modal').style.display = 'block';
+function logout() {
+  location.reload();
 }
 
-function closeModal() {
-  document.getElementById('game-modal').style.display = 'none';
-}
-
-function verifyKey() {
-  const key = document.getElementById('key-input').value.trim();
-  const result = document.getElementById('verify-result');
-  if (key.length < 5) {
-    result.innerHTML = `<span style="color:red;">❌ Geçersiz key!</span>`;
-    return;
-  }
-  result.innerHTML = `<span style="color:lime;">✅ Key başarıyla doğrulandı!</span>`;
+function register() {
+  alert("Kayıt sistemi şu an simüle edilmiştir.\n\nDemo hesaplar:\nadmin / 12345\ntest / 1234");
 }
 
 function showSection(section) {
+  // diğer bölümler...
   document.getElementById('home-section').style.display = section === 'home' ? 'block' : 'none';
   document.getElementById('verify-section').style.display = section === 'verify' ? 'block' : 'none';
 }
 
-window.onload = loadGames;
+// Basit oyun yükleme (daha sonra genişletiriz)
+function loadGames() {
+  // ... oyun kartları
+  console.log("Oyunlar yüklendi");
+}
+
+function verifyKey() {
+  alert("✅ Key başarıyla doğrulandı! (Simüle)");
+}
+
+// Admin Paneli
+function showAdminPanel() {
+  alert("👑 Admin Paneli\n\nBuraya key üretme, oyun ekleme vs. eklenecek.");
+}
+
+// Sayfa yüklenince
+window.onload = () => {
+  // Otomatik giriş yapma (test için)
+  // login() fonksiyonunu çağırabilirsin
+};
 </script>
 </body>
 </html>
