@@ -3,50 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Ultra Control v5</title>
+    <title>Swascshop | Ultimate v7</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
         
         /* Üst Duyuru */
-        #top-announcement { background: #ff4655; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 18px; border-bottom: 3px solid white; text-shadow: 0 0 10px black; }
+        #top-announcement { background: #ff4655; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; border-bottom: 2px solid white; position: relative; z-index: 1001; }
 
-        nav { background: rgba(0,0,0,0.95); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; }
-        .logo h1 { margin:0; color:var(--neon); cursor: pointer; text-shadow: 0 0 15px var(--neon); }
-        .nav-links button { background: none; border: none; color: white; margin: 0 15px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .nav-links button:hover { color: var(--neon); transform: scale(1.1); }
+        nav { background: rgba(0,0,0,0.95); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; }
+        .logo h1 { margin:0; color:var(--neon); cursor: pointer; text-shadow: 0 0 10px var(--neon); }
+        .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; }
 
         /* DEV ADMİN PANELİ */
-        #admin-panel { display: none; background: #1f1f23; padding: 40px; border-bottom: 5px solid var(--neon); min-height: 500px; box-shadow: 0 10px 50px rgba(0,0,0,0.8); }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
-        .admin-box { background: #2a2a2e; padding: 25px; border-radius: 15px; border: 1px solid #444; }
-        .admin-box h3 { color: var(--neon); margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); position: relative; z-index: 2000; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .admin-box { background: #2a2a2e; padding: 20px; border-radius: 12px; border: 1px solid #444; }
 
-        .section { display: none; padding: 50px; max-width: 1300px; margin: auto; animation: fadeIn 0.4s; }
+        .section { display: none; padding: 40px; max-width: 1200px; margin: auto; animation: fadeIn 0.4s; }
         .active { display: block !important; }
 
-        input, textarea { padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #000; width: 100%; color: white; font-size: 16px; }
-        .btn { background: var(--primary); color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; transition: 0.3s; }
-        .btn:hover { background: var(--neon); box-shadow: 0 0 20px var(--neon); }
+        input, textarea { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; background: #000; width: 100%; color: white; font-size: 14px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
+        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
 
-        /* Kartlar ve Çark */
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; }
-        .game-card:hover { border-color: var(--neon); }
-        .wheel-box { text-align: center; margin: 40px auto; padding: 40px; border: 3px dashed var(--neon); border-radius: 30px; width: 400px; background: rgba(145, 70, 255, 0.05); }
+        /* Kartlar, Çark ve Bildirim */
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; transition: 0.3s; }
+        .game-card:hover { border-color: var(--neon); transform: translateY(-5px); }
+        .wheel-box { text-align: center; margin: 20px auto; padding: 30px; border: 3px dashed var(--neon); border-radius: 25px; width: 350px; background: rgba(145, 70, 255, 0.05); }
+        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; display: none; z-index: 5000; animation: slideIn 0.5s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 14px; }
 
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 40px; border-radius: 20px; z-index: 3000; width: 400px; border: 2px solid var(--neon); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 350px; border: 2px solid var(--neon); }
 
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        @keyframes slideIn { from {transform: translateX(-100%);} to {transform: translateX(0);} }
     </style>
 </head>
 <body>
 
 <div id="top-announcement">📢 DEĞERLENDİRME YAPANA 1 KEY BEDAVA! (Adminle İletişime Geç)</div>
-
+<div id="notification-toast"></div>
 <div id="overlay" class="overlay"></div>
 <audio id="bg-music" loop></audio>
 
@@ -62,64 +62,69 @@
 </nav>
 
 <div id="admin-panel">
-    <h1 style="text-align:center; color:var(--neon); margin-bottom:40px;">🎮 SWASCSHOP KONTROL MERKEZİ</h1>
+    <h2 style="text-align:center; color:var(--neon);">👑 YÖNETİCİ KONTROL PANELİ</h2>
     <div class="admin-grid">
         <div class="admin-box">
-            <h3>📦 Ürün Ekleme</h3>
-            <input type="text" id="gTitle" placeholder="Oyunun Adı (Örn: GTA V)">
-            <input type="text" id="gSecret" placeholder="Bilgiler (Örn: Steam: kullanıcı / şifre)">
-            <button class="btn" style="background:var(--accent);" onclick="addGame()">SİSTEME KAYDET</button>
+            <h3>📦 Oyun Ekle</h3>
+            <input type="text" id="gTitle" placeholder="Oyun Adı">
+            <input type="text" id="gSecret" placeholder="Gizli Bilgi (Hesap/Pass)">
+            <button class="btn" style="background:var(--accent);" onclick="addGame()">EKLE</button>
         </div>
         <div class="admin-box">
-            <h3>🎡 Çark Ayarları</h3>
-            <p style="font-size:12px; color:#aaa;">Ödülleri virgülle ayırın (Örn: Key,İndirim,Pas,Hesap)</p>
-            <input type="text" id="wheelRewards" placeholder="Ödül Listesi">
-            <button class="btn" onclick="saveWheel()">ÇARKI GÜNCELLE</button>
+            <h3>🎡 Çark Kontrolü</h3>
+            <input type="text" id="wheelRewards" placeholder="Ödülleri virgülle ayır">
+            <button class="btn" onclick="saveWheel()">GÜNCELLE</button>
         </div>
         <div class="admin-box">
-            <h3>🔑 Lisans (Key) Havuzu</h3>
-            <textarea id="keyList" style="height:120px;" placeholder="Her satıra 1 tane key yapıştır..."></textarea>
-            <button class="btn" onclick="saveKeys()">KEYLERİ KAYDET</button>
+            <h3>🔑 Key Havuzu</h3>
+            <textarea id="keyList" style="height:80px;" placeholder="Alt alta keyleri yaz"></textarea>
+            <button class="btn" onclick="saveKeys()">KAYDET</button>
         </div>
         <div class="admin-box">
-            <h3>🎵 Müzik & Sistem</h3>
-            <input type="text" id="musicUrl" placeholder="Direct MP3 Linki">
-            <button class="btn" style="background:#444;" onclick="saveMusic()">MÜZİĞİ AKTİF ET</button>
+            <h3>🎵 Müzik Linki</h3>
+            <input type="text" id="musicUrl" placeholder="MP3 Link">
+            <button class="btn" onclick="saveMusic()">KAYDET</button>
         </div>
     </div>
 </div>
 
 <div id="home" class="section active">
     <div class="wheel-box">
-        <h2 style="color:var(--neon);">🎡 GÜNLÜK ŞANS</h2>
-        <p id="wheel-msg" style="font-size:18px;">Her gün 1 kere çevirme hakkın var!</p>
-        <button class="btn" id="spin-btn" style="height:60px; font-size:20px;" onclick="spinWheel()">ÇEVİR!</button>
+        <h2 style="color:var(--neon);">🎡 ŞANS ÇARKI</h2>
+        <p id="wheel-msg">Günde 1 kez şansını dene!</p>
+        <button class="btn" id="spin-btn" style="font-size:18px;" onclick="spinWheel()">ÇEVİR!</button>
     </div>
-    <div id="reviewsGrid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin-top:50px;"></div>
+    <div id="reviewsGrid" style="text-align:center; margin-top:30px;">
+        <h3 style="color:var(--neon);">⭐ MÜŞTERİ YORUMLARI</h3>
+        <p><i>"Harika dükkan! - Efe", "Key anında geldi - Murat"</i></p>
+    </div>
 </div>
 
 <div id="verify" class="section">
-    <div style="max-width:500px; margin:auto; background:var(--card-bg); padding:40px; border-radius:20px; border:1px solid var(--accent); text-align:center;">
-        <h2 style="color:var(--accent);">ANAHTARINI DOĞRULA</h2>
-        <input type="text" id="verifyKey" placeholder="KEY-XXXX-XXXX" style="text-align:center; font-size:22px;">
-        <button class="btn" style="background:var(--accent); margin-top:20px;" onclick="checkKey()">MAĞAZAYI AKTİF ET</button>
+    <div style="max-width:400px; margin:auto; background:var(--card-bg); padding:30px; border-radius:15px; border:1px solid var(--accent); text-align:center;">
+        <h2 style="color:var(--accent);">KEY DOĞRULA</h2>
+        <input type="text" id="verifyKey" placeholder="KEY-XXXX-XXXX" style="text-align:center;">
+        <button class="btn" style="background:var(--accent); margin-top:10px;" onclick="checkKey()">MAĞAZAYI AÇ</button>
     </div>
 </div>
 
 <div id="shop" class="section">
-    <h2 style="color:var(--neon); margin-bottom:30px;">🛒 LÜTFEN BİR OYUN SEÇİN</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
+        <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
+        <input type="text" id="gameSearch" placeholder="Oyun ara..." style="width:250px; border:1px solid var(--neon);" onkeyup="searchGames()">
+    </div>
     <div class="container" id="gameGrid"></div>
 </div>
 
 <div id="library" class="section">
-    <h2 style="color:var(--warning); margin-bottom:30px;">📚 SATIN ALDIĞIM OYUNLAR</h2>
-    <div id="libraryGrid">Henüz bir ürünün bulunmuyor kanka.</div>
+    <h2 style="color:var(--warning);">📚 KÜTÜPHANEM</h2>
+    <div id="libraryGrid">Seçili oyun yok.</div>
 </div>
 
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center; color:var(--neon);">Dükkana Giriş</h2>
-    <input type="text" id="uName" placeholder="Kullanıcı Adınız">
-    <button class="btn" onclick="handleLogin()">GİRİŞ YAP</button>
+    <h2 style="text-align:center; color:var(--neon);">Hoş Geldin</h2>
+    <input type="text" id="uName" placeholder="Kullanıcı Adı">
+    <button class="btn" onclick="handleLogin()">GİRİŞ</button>
 </div>
 
 <script>
@@ -138,47 +143,29 @@
     let currentUser = localStorage.getItem('user'), isVerified = false;
 
     window.onload = () => {
-        if(currentUser) { 
-            closeAuth(); 
-            loadData(); 
-            checkWheelStatus();
-        } else {
-            document.getElementById('auth-modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
+        if(currentUser) { closeAuth(); loadData(); checkWheel(); startFakeSales(); } 
+        else { openAuth(); }
     };
 
-    function showSection(id) {
-        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") {
-            alert("⚠️ Önce bir key doğrulamalısın!");
-            return showSection('verify');
-        }
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        window.scrollTo(0,0);
+    function openAuth() { document.getElementById('auth-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function closeAuth() { 
+        document.getElementById('auth-modal').style.display = 'none'; 
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('user-controls').innerHTML = `<button class="btn" style="width:auto;" onclick="toggleAdmin()">👤 ${currentUser}</button>`;
     }
 
     function handleLogin() {
         const u = document.getElementById('uName').value.trim();
         const p = prompt("Şifre:");
-        if(u === "Swascshop" && p === "12345") {
-            localStorage.setItem('user', u); location.reload();
-        } else if(u && p === "shop2026") {
-            localStorage.setItem('user', u); location.reload();
-        } else { alert("Yanlış şifre kanka!"); }
+        if(u === "Swascshop" && p === "12345") { localStorage.setItem('user', u); location.reload(); }
+        else if(u && p === "shop2026") { localStorage.setItem('user', u); location.reload(); }
+        else alert("Hata!");
     }
 
-    function closeAuth() {
-        document.getElementById('auth-modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('user-controls').innerHTML = `<button class="btn" style="width:auto;" onclick="toggleAdmin()">👤 ${currentUser}</button>`;
-    }
-
-    function toggleAdmin() {
-        if(currentUser === "Swascshop") {
-            const p = document.getElementById('admin-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
+    function showSection(id) {
+        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") { alert("Önce key doğrula!"); return showSection('verify'); }
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 
     function loadData() {
@@ -186,25 +173,16 @@
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
-                grid.innerHTML += `<div class="game-card">
-                    <h3>${data[id].title}</h3>
-                    <button class="btn" onclick="claimGame('${id}', '${data[id].title}', '${data[id].secret}')">OYUNU SEÇ</button>
-                    ${currentUser === "Swascshop" ? `<button onclick="deleteItem('games/${id}')" style="color:red; background:none; border:none; margin-top:10px; cursor:pointer;">[SİL]</button>` : ''}
-                </div>`;
+                grid.innerHTML += `<div class="game-card"><h3>${data[id].title}</h3><button class="btn" onclick="claimGame('${id}','${data[id].title}','${data[id].secret}')">SEÇ</button></div>`;
             });
         });
-
         db.ref('users/' + currentUser + '/library').on('value', s => {
             const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
-                grid.innerHTML += `<div style="background:#111; padding:20px; border-left:5px solid var(--neon); margin-bottom:15px; border-radius:10px;">
-                    <strong>🎮 OYUN: ${data[id].title}</strong><br>
-                    <span style="color:var(--accent);">🔑 BİLGİLER: ${data[id].secret}</span>
-                </div>`;
+                grid.innerHTML += `<div style="background:#111; padding:15px; margin-bottom:10px; border-left:5px solid var(--neon);"><b>${data[id].title}</b><br>Bilgi: ${data[id].secret}</div>`;
             });
         });
-
         db.ref('settings').on('value', s => {
             const d = s.val() || {};
             if(d.music) document.getElementById('bg-music').src = d.music;
@@ -213,10 +191,16 @@
                 document.getElementById('musicUrl').value = d.music || "";
             }
         });
+        if(currentUser === "Swascshop") db.ref('keys').on('value', s => { document.getElementById('keyList').value = (s.val() || []).join('\n'); });
+    }
 
-        if(currentUser === "Swascshop") db.ref('keys').on('value', s => {
-            document.getElementById('keyList').value = (s.val() || []).join('\n');
-        });
+    function searchGames() {
+        const input = document.getElementById('gameSearch').value.toLowerCase();
+        const cards = document.getElementsByClassName('game-card');
+        for (let i = 0; i < cards.length; i++) {
+            const title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+            cards[i].style.display = title.includes(input) ? "block" : "none";
+        }
     }
 
     function checkKey() {
@@ -224,97 +208,62 @@
         db.ref('keys').once('value', s => {
             let keys = s.val() || [];
             const i = keys.indexOf(k);
-            if(i > -1) {
-                keys.splice(i, 1); db.ref('keys').set(keys);
-                isVerified = true; alert("✅ Key onaylandı! Mağaza açıldı."); showSection('shop');
-            } else { alert("❌ Key geçersiz veya kullanılmış!"); }
+            if(i > -1) { keys.splice(i, 1); db.ref('keys').set(keys); isVerified = true; alert("Onaylandı!"); showSection('shop'); }
+            else alert("Geçersiz!");
         });
     }
 
     function claimGame(id, title, secret) {
         db.ref('users/' + currentUser + '/library').push({ title, secret });
-        isVerified = false; alert("📦 Oyun kütüphanene eklendi!"); showSection('library');
+        isVerified = false; alert("Kütüphaneye eklendi!"); showSection('library');
     }
 
-    // ÇARK SİSTEMİ
     function spinWheel() {
         const today = new Date().toDateString().replace(/\s/g, "");
         db.ref('wheelLog/' + currentUser + '/' + today).once('value', s => {
-            if(s.exists() && currentUser !== "Swascshop") return alert("Yarın gel kanka!");
-            
+            if(s.exists() && currentUser !== "Swascshop") return alert("Hakkın bitti!");
             const btn = document.getElementById('spin-btn');
             btn.disabled = true; btn.innerText = "DÖNÜYOR...";
-
             db.ref('settings/wheel').once('value', snap => {
-                const rewards = (snap.val() || "Key,Pas,İndirim").split(',');
+                const r = (snap.val() || "Key,Pas").split(',');
                 setTimeout(() => {
-                    const win = rewards[Math.floor(Math.random() * rewards.length)];
-                    db.ref('wheelLog/' + currentUser + '/' + today).set({ won: win }).then(() => {
-                        document.getElementById('wheel-msg').innerHTML = `🎉 KAZANDIN: <b style="color:var(--neon)">${win}</b>`;
+                    const win = r[Math.floor(Math.random()*r.length)];
+                    db.ref('wheelLog/'+currentUser+'/'+today).set({ won: win }).then(() => {
+                        document.getElementById('wheel-msg').innerHTML = "Kazandın: " + win;
                         btn.innerText = (currentUser === "Swascshop") ? "TEKRAR ÇEVİR" : "BİTTİ";
                         if(currentUser === "Swascshop") btn.disabled = false;
                     });
-                }, 2000);
+                }, 1500);
             });
         });
     }
 
-    function checkWheelStatus() {
+    function checkWheel() {
         const today = new Date().toDateString().replace(/\s/g, "");
-        db.ref('wheelLog/' + currentUser + '/' + today).on('value', s => {
+        db.ref('wheelLog/'+currentUser+'/'+today).on('value', s => {
             if(s.exists() && currentUser !== "Swascshop") {
-                const btn = document.getElementById('spin-btn');
-                btn.disabled = true; btn.innerText = "YARIN TEKRAR GEL";
-                document.getElementById('wheel-msg').innerHTML = `Bugünün ödülü: <b style="color:var(--neon)">${s.val().won}</b>`;
+                const b = document.getElementById('spin-btn'); b.disabled = true; b.innerText = "BİTTİ";
+                document.getElementById('wheel-msg').innerText = "Bugün: " + s.val().won;
             }
         });
     }
 
-    // ADMİN KAYIT FONKSİYONLARI
-    function addGame() {
-        const t = document.getElementById('gTitle').value, s = document.getElementById('gSecret').value;
-        if(!t || !s) return alert("Alanları doldur kanka!");
-        db.ref('games').push({ title: t, secret: s }); alert("Oyun eklendi!");
-    }
-    function saveWheel() { db.ref('settings/wheel').set(document.getElementById('wheelRewards').value); alert("Çark ödülleri güncellendi!"); }
-    function saveKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(x => x.trim())); alert("Key listesi kaydedildi!"); }
-    function saveMusic() { db.ref('settings/music').set(document.getElementById('musicUrl').value); alert("Müzik güncellendi!"); }
-    function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }<div id="shop" class="section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-        <h2 style="color:var(--neon); margin: 0;">🛒 OYUNUNU SEÇ</h2>
-        
-        <div style="position: relative; width: 100%; max-width: 400px;">
-            <input type="text" id="gameSearch" placeholder="Oyun ara... (Örn: God of War)" 
-                   style="margin: 0; padding: 12px 40px 12px 15px; border: 2px solid var(--neon); border-radius: 25px; background: rgba(0,0,0,0.7);"
-                   onkeyup="searchGames()">
-            <span style="position: absolute; right: 15px; top: 12px; font-size: 18px;">🔍</span>
-        </div>
-    </div>
-    
-    <div class="container" id="gameGrid"></div>
-</div>
-
-<script>
-    // --- ARAMA FONKSİYONU ---
-    function searchGames() {
-        const input = document.getElementById('gameSearch').value.toLowerCase();
-        const cards = document.getElementsByClassName('game-card');
-
-        for (let i = 0; i < cards.length; i++) {
-            // Kartın içindeki başlığı (H3) kontrol et
-            const title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-            
-            if (title.includes(input)) {
-                cards[i].style.display = "block"; // Eşleşiyorsa göster
-            } else {
-                cards[i].style.display = "none";  // Eşleşmiyorsa gizle
+    function startFakeSales() {
+        const names = ["Efe", "Murat", "Can", "Yusuf"];
+        setInterval(() => {
+            if(Math.random() > 0.8 && currentUser) {
+                const t = document.getElementById('notification-toast');
+                t.innerText = "⚡ " + names[Math.floor(Math.random()*names.length)] + " az önce bir oyun aldı!";
+                t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 4000);
             }
-        }
+        }, 15000);
     }
 
-    // Not: Mevcut loadData fonksiyonun içindeki oyun kartı oluşturma kısmını 
-    // değiştirmene gerek yok, class="game-card" olduğu sürece bu arama motoru her şeyi bulur.
-</script>
+    function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
+    function addGame() { db.ref('games').push({ title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value }); alert("Eklendi!"); }
+    function saveWheel() { db.ref('settings/wheel').set(document.getElementById('wheelRewards').value); alert("Güncellendi!"); }
+    function saveKeys() { db.ref('keys').set(document.getElementById('keyList').value.split('\n').filter(x=>x.trim())); alert("Kaydedildi!"); }
+    function saveMusic() { db.ref('settings/music').set(document.getElementById('musicUrl').value); alert("Kaydedildi!"); }
 </script>
 </body>
 </html>
