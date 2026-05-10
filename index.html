@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Global Oyun Mağazası</title>
+    <title>Swascshop | Tam Korumalı Mağaza</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
@@ -60,9 +60,10 @@
 </div>
 
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center">Giriş</h2>
+    <h2 style="text-align:center">Mağazaya Giriş</h2>
+    <p style="font-size:12px; color:#aaa; text-align:center;">Lütfen kullanıcı adınızı girin.</p>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">Giriş Yap</button>
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">Devam Et</button>
 </div>
 
 <div id="key-modal" class="modal">
@@ -74,7 +75,6 @@
 <div class="container" id="gameGrid"></div>
 
 <script>
-    // --- FİREBASE BİLGİLERİ ---
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -85,8 +85,10 @@
         appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
     };
 
+    // --- ŞİFRE AYARLARI ---
     const adminUser = "Swascshop";
-    const adminPass = "159357yzgt"; // ŞİFREN BU KANKA
+    const adminPass = "159357yzgt";       // Senin şifren
+    const customerPass = "shop2026"; // Müşterilerin şifresi
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -96,28 +98,35 @@
     window.onload = () => {
         listenData();
         if(currentUser) setupUI();
+        else openModal('auth-modal'); // Site açılır açılmaz şifre sorsun
     };
 
     function handleLogin() {
         const u = document.getElementById('uName').value.trim();
-        if(!u) return;
+        if(!u) return alert("Kullanıcı adı boş olamaz!");
 
-        // EĞER KULLANICI ADI "Swascshop" İSE MUTLAKA ŞİFRE SOR
+        const p = prompt("Giriş Şifresini Girin:");
+        
         if(u.toLowerCase() === adminUser.toLowerCase()) {
-            const p = prompt("Yönetici Şifresini Girin:");
+            // Admin girişi
             if(p === adminPass) {
                 localStorage.setItem('user', adminUser);
                 location.reload();
             } else {
-                alert("Hatalı Şifre!");
+                alert("Hatalı Admin Şifresi!");
             }
         } else {
-            // Normal Kullanıcı Girişi
-            localStorage.setItem('user', u);
-            location.reload();
+            // Müşteri girişi
+            if(p === customerPass) {
+                localStorage.setItem('user', u);
+                location.reload();
+            } else {
+                alert("Hatalı Müşteri Şifresi!");
+            }
         }
     }
 
+    // Diğer tüm fonksiyonlar (aynı şekilde devam ediyor)
     function listenData() {
         db.ref('games').on('value', snapshot => {
             const games = snapshot.val() || {};
@@ -125,74 +134,47 @@
             grid.innerHTML = "";
             Object.keys(games).forEach(id => {
                 const g = games[id];
-                grid.innerHTML += `
-                    <div class="game-card">
-                        ${currentUser === adminUser ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
-                        <img src="${g.img || 'https://via.placeholder.com/300x160'}">
-                        <div class="game-info">
-                            <h3>${g.title}</h3>
-                            <p style="color:var(--accent); font-weight:bold;">${g.price} TL</p>
-                            <button class="btn" style="width:100%; background:#333;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">Key Kullan</button>
-                        </div>
-                    </div>`;
+                grid.innerHTML += `<div class="game-card">
+                    ${currentUser === adminUser ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
+                    <img src="${g.img || 'https://via.placeholder.com/300x160'}">
+                    <div class="game-info">
+                        <h3>${g.title}</h3>
+                        <p style="color:var(--accent); font-weight:bold;">${g.price} TL</p>
+                        <button class="btn" style="width:100%; background:#333;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">Key Kullan</button>
+                    </div></div>`;
             });
         });
-
         if(currentUser === adminUser) {
-            db.ref('keys').on('value', snapshot => {
-                const k = snapshot.val() || [];
-                document.getElementById('keyList').value = k.join('\n');
-            });
+            db.ref('keys').on('value', snapshot => { document.getElementById('keyList').value = (snapshot.val() || []).join('\n'); });
         }
     }
 
     function setupUI() {
         const ctrl = document.getElementById('user-controls');
-        ctrl.innerHTML = `
-            <div class="profile-container">
-                <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
-                <div id="pMenu" class="profile-menu">
-                    <a onclick="showLibrary()">Kütüphanem</a>
-                    ${currentUser === adminUser ? '<a onclick="showAdmin()">Admin Paneli</a>' : ''}
-                    <a onclick="localStorage.clear(); location.reload();">Çıkış</a>
-                </div>
-            </div>`;
+        ctrl.innerHTML = `<div class="profile-container">
+            <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
+            <div id="pMenu" class="profile-menu">
+                <a onclick="showLibrary()">Kütüphanem</a>
+                ${currentUser === adminUser ? '<a onclick="showAdmin()">Admin Paneli</a>' : ''}
+                <a onclick="localStorage.clear(); location.reload();">Çıkış</a>
+            </div></div>`;
     }
 
-    function toggleMenu() {
-        const m = document.getElementById('pMenu');
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
-    }
-
+    function toggleMenu() { const m = document.getElementById('pMenu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
     function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; toggleMenu(); }
-
     function addGame() {
         const title = document.getElementById('gTitle').value;
         const price = document.getElementById('gPrice').value;
         const img = document.getElementById('gImg').value;
         const secret = document.getElementById('gSecret').value;
-        if(title && secret) {
-            db.ref('games').push({ title, price, img, secret });
-            alert("Oyun Eklendi!");
-            document.getElementById('gTitle').value = "";
-            document.getElementById('gSecret').value = "";
-        }
+        if(title && secret) { db.ref('games').push({ title, price, img, secret }); alert("Oyun Eklendi!"); }
     }
-
     function deleteGame(id) { if(confirm("Silinsin mi?")) db.ref('games/' + id).remove(); }
-    
     function updateKeys() {
         const keys = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k);
-        db.ref('keys').set(keys);
-        alert("Keyler Güncellendi!");
+        db.ref('keys').set(keys); alert("Keyler Güncellendi!");
     }
-
-    function prepareKey(id, title, secret, img) {
-        if(!currentUser) return openModal('auth-modal');
-        targetGame = { id, title, secret, img };
-        openModal('key-modal');
-    }
-
+    function prepareKey(id, title, secret, img) { if(!currentUser) return openModal('auth-modal'); targetGame = { id, title, secret, img }; openModal('key-modal'); }
     function useKey() {
         const input = document.getElementById('keyInp').value.trim();
         db.ref('keys').once('value', snapshot => {
@@ -202,15 +184,12 @@
                 currentKeys.splice(idx, 1);
                 db.ref('keys').set(currentKeys);
                 db.ref('libraries/' + currentUser).push(targetGame);
-                alert("Oyun Kütüphanene Eklendi!");
-                closeModals();
+                alert("Oyun Kütüphanene Eklendi!"); closeModals();
             } else { alert("Geçersiz Key!"); }
         });
     }
-
     function showLibrary() {
-        document.getElementById('library-panel').style.display = 'block';
-        toggleMenu();
+        document.getElementById('library-panel').style.display = 'block'; toggleMenu();
         db.ref('libraries/' + currentUser).on('value', snapshot => {
             const data = snapshot.val() || {};
             const content = document.getElementById('library-content');
@@ -220,7 +199,6 @@
             });
         });
     }
-
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
 </script>
