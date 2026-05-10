@@ -261,7 +261,52 @@
         if(!currentUser && document.getElementById('auth-modal').style.display === 'block') return;
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
         document.getElementById('overlay').style.display = 'none'; 
+    }// --- ÇARK KORUMA SİSTEMİ (BU KISMI GÜNCELLEDİM) ---
+
+function spinWheel() {
+    // Bugün daha önce çevrilmiş mi kontrol et
+    const lastSpin = localStorage.getItem('lastSpinDate');
+    const today = new Date().toDateString();
+
+    if (lastSpin === today && currentUser !== adminUser) {
+        alert("Günde sadece 1 kez çevirebilirsin! Yarın tekrar gel kanka.");
+        return;
     }
+
+    const btn = document.getElementById('spin-btn');
+    btn.disabled = true;
+    btn.innerText = "DÖNÜYOR...";
+
+    db.ref('settings/wheel').once('value', s => {
+        const rewards = (s.val() || "Üzgünüm,Pas,İndirim,Key").split(',');
+        
+        setTimeout(() => {
+            const win = rewards[Math.floor(Math.random() * rewards.length)];
+            document.getElementById('wheel-msg').innerHTML = `🎉 KAZANDIN: <b style="color:var(--neon)">${win}</b>`;
+            showToast(`Harika! ${win} kazandın. Bize bildir!`);
+            btn.innerText = "YARIN YİNE GEL";
+            
+            // Çevirdiğini hafızaya kaydet
+            localStorage.setItem('lastSpinDate', today);
+        }, 2000);
+    });
+}
+
+// Sayfa yüklendiğinde butonu kontrol et
+function checkWheelStatus() {
+    const lastSpin = localStorage.getItem('lastSpinDate');
+    const today = new Date().toDateString();
+    
+    if (lastSpin === today && currentUser !== adminUser) {
+        const btn = document.getElementById('spin-btn');
+        btn.disabled = true;
+        btn.innerText = "BUGÜNLÜK HAKKIN BİTTİ";
+        document.getElementById('wheel-msg').innerText = "Yarın tekrar şansını deneyebilirsin!";
+    }
+}
+
+// window.onload fonksiyonunun içine şunu ekle:
+// checkWheelStatus();
 </script>
 </body>
 </html>
