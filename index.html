@@ -3,30 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Tam Korumalı Mağaza</title>
+    <title>Swascshop | Pro Gaming Store</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --primary: #7289da; --bg: #0f0f0f; --card-bg: #1a1a1a; --text: #ffffff; --accent: #43b581; --danger: #ff4747; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
-        nav { background: #000; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn:hover { opacity: 0.8; transform: scale(1.02); }
-        .profile-container { position: relative; display: inline-block; }
-        .profile-menu { display: none; position: absolute; right: 0; background: #1a1a1b; min-width: 180px; border-radius: 8px; border: 1px solid #333; z-index: 1001; margin-top: 10px; overflow: hidden; }
-        .profile-menu a { color: white; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; border-bottom: 1px solid #222; }
-        .profile-menu a:hover { background: #2c2f33; }
-        #admin-panel, #library-panel { display: none; background: #23272a; padding: 25px; border-bottom: 3px solid var(--accent); text-align: center; }
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 40px; }
-        .game-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; border: 1px solid #222; position: relative; transition: 0.3s; }
-        .game-card img { width: 100%; height: 160px; object-fit: cover; }
-        .game-info { padding: 15px; }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 0 50px #000; z-index: 2000; width: 320px; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; }
-        input, textarea { padding: 12px; margin: 8px 0; border-radius: 5px; border: none; background: #eee; width: 100%; box-sizing: border-box; color: #333; }
+        :root { 
+            --primary: #7289da; 
+            --bg: #0b0b0b; 
+            --card-bg: #161616; 
+            --text: #ffffff; 
+            --accent: #43b581; 
+            --danger: #ff4747;
+            --neon: #9146ff; /* Mor Neon */
+        }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #0b0b0b 80%);
+        }
+
+        nav { 
+            background: rgba(0,0,0,0.9); 
+            padding: 15px 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--neon); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        /* RGB Kartlar */
+        .game-card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #222; 
+            position: relative; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        .game-card:hover { 
+            transform: scale(1.05); 
+            border-color: var(--neon);
+            box-shadow: 0 0 20px rgba(145, 70, 255, 0.4);
+        }
+
+        .game-card img { width: 100%; height: 160px; object-fit: cover; transition: 0.5s; }
+        .game-card:hover img { filter: brightness(1.2); }
+
+        /* Kategori Filtreleri */
+        .filter-bar { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            padding: 20px; 
+            flex-wrap: wrap; 
+        }
+        .filter-btn {
+            background: #222; 
+            color: #aaa; 
+            border: 1px solid #333; 
+            padding: 8px 18px; 
+            border-radius: 20px; 
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover { 
+            background: var(--neon); 
+            color: white; 
+            border-color: var(--neon); 
+            box-shadow: 0 0 10px var(--neon);
+        }
+
+        /* Butonlar */
+        .btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+        /* Paneller & Diğerleri */
+        #admin-panel, #library-panel { display: none; background: #1a1a1b; padding: 25px; border-bottom: 3px solid var(--neon); text-align: center; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 40px; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 0 50px #000; z-index: 2000; width: 320px; border: 1px solid var(--neon); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; }
+        input, textarea, select { padding: 12px; margin: 8px 0; border-radius: 5px; border: none; background: #222; width: 100%; box-sizing: border-box; color: white; }
     </style>
 </head>
 <body>
@@ -34,23 +112,37 @@
 <div id="overlay" class="overlay" onclick="closeModals()"></div>
 
 <nav>
-    <div class="logo"><h1 style="margin:0; color:var(--primary); cursor:pointer;" onclick="location.reload()">Swascshop</h1></div>
-    <div id="user-controls">
-        <button class="btn" onclick="openModal('auth-modal')">Giriş Yap</button>
-    </div>
+    <div class="logo"><h1 style="margin:0; color:var(--neon); font-style: italic;">SWASCSHOP</h1></div>
+    <div id="user-controls"><button class="btn" onclick="openModal('auth-modal')">Giriş Yap</button></div>
 </nav>
 
 <div id="admin-panel">
-    <h3 style="color: var(--accent);">👑 Yönetici Paneli</h3>
-    <textarea id="keyList" placeholder="Keyleri buraya girin..."></textarea>
-    <button class="btn" style="background:#555; width:100%; margin-bottom:15px;" onclick="updateKeys()">Keyleri Kaydet</button>
+    <h3 style="color: var(--neon);">👑 Yönetici Kontrol Merkezi</h3>
+    <textarea id="keyList" style="height:60px;" placeholder="Keyleri alt alta yapıştırın..."></textarea>
+    <button class="btn" style="width:100%; margin-bottom:15px; background:#444;" onclick="updateKeys()">Keyleri Depola</button>
+    
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
         <input type="text" id="gTitle" placeholder="Oyun Adı">
-        <input type="text" id="gPrice" placeholder="Fiyat">
-        <input type="text" id="gImg" placeholder="Resim URL">
-        <input type="text" id="gSecret" placeholder="Gizli Bilgi">
+        <input type="text" id="gPrice" placeholder="Fiyat (TL)">
+        <input type="text" id="gImg" placeholder="Resim Linki">
+        <select id="gCat">
+            <option value="Hepsi">Kategori Seç</option>
+            <option value="Steam">Steam</option>
+            <option value="Valorant">Valorant</option>
+            <option value="Roblox">Roblox</option>
+            <option value="Random">Random Key</option>
+        </select>
+        <input type="text" id="gSecret" placeholder="Gizli Bilgi" style="grid-column: span 2;">
     </div>
-    <button class="btn" style="background:var(--accent); width:100%; margin-top:10px;" onclick="addGame()">Oyunu Ekle</button>
+    <button class="btn" style="width:100%; margin-top:10px;" onclick="addGame()">Sisteme Entegre Et</button>
+</div>
+
+<div class="filter-bar">
+    <button class="filter-btn active" onclick="filterGames('Hepsi')">Tümü</button>
+    <button class="filter-btn" onclick="filterGames('Steam')">Steam</button>
+    <button class="filter-btn" onclick="filterGames('Valorant')">Valorant</button>
+    <button class="filter-btn" onclick="filterGames('Roblox')">Roblox</button>
+    <button class="filter-btn" onclick="filterGames('Random')">Random Key</button>
 </div>
 
 <div id="library-panel">
@@ -60,148 +152,5 @@
 </div>
 
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center">Mağazaya Giriş</h2>
-    <p style="font-size:12px; color:#aaa; text-align:center;">Lütfen kullanıcı adınızı girin.</p>
+    <h2 style="text-align:center">Erişim Paneli</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="handleLogin()">Devam Et</button>
-</div>
-
-<div id="key-modal" class="modal">
-    <h2 style="text-align:center">Key Onayla</h2>
-    <input type="text" id="keyInp" placeholder="Keyinizi yapıştırın">
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="useKey()">Onayla</button>
-</div>
-
-<div class="container" id="gameGrid"></div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
-        authDomain: "swascshop.firebaseapp.com",
-        databaseURL: "https://swascshop-default-rtdb.firebaseio.com",
-        projectId: "swascshop",
-        storageBucket: "swascshop.firebasestorage.app",
-        messagingSenderId: "132240652717",
-        appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
-    };
-
-    // --- ŞİFRE AYARLARI ---
-    const adminUser = "Swascshop";
-    const adminPass = "159357yzgt";       // Senin şifren
-    const customerPass = "shop2026"; // Müşterilerin şifresi
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    let currentUser = localStorage.getItem('user');
-    let targetGame = null;
-
-    window.onload = () => {
-        listenData();
-        if(currentUser) setupUI();
-        else openModal('auth-modal'); // Site açılır açılmaz şifre sorsun
-    };
-
-    function handleLogin() {
-        const u = document.getElementById('uName').value.trim();
-        if(!u) return alert("Kullanıcı adı boş olamaz!");
-
-        const p = prompt("Giriş Şifresini Girin:");
-        
-        if(u.toLowerCase() === adminUser.toLowerCase()) {
-            // Admin girişi
-            if(p === adminPass) {
-                localStorage.setItem('user', adminUser);
-                location.reload();
-            } else {
-                alert("Hatalı Admin Şifresi!");
-            }
-        } else {
-            // Müşteri girişi
-            if(p === customerPass) {
-                localStorage.setItem('user', u);
-                location.reload();
-            } else {
-                alert("Hatalı Müşteri Şifresi!");
-            }
-        }
-    }
-
-    // Diğer tüm fonksiyonlar (aynı şekilde devam ediyor)
-    function listenData() {
-        db.ref('games').on('value', snapshot => {
-            const games = snapshot.val() || {};
-            const grid = document.getElementById('gameGrid');
-            grid.innerHTML = "";
-            Object.keys(games).forEach(id => {
-                const g = games[id];
-                grid.innerHTML += `<div class="game-card">
-                    ${currentUser === adminUser ? `<button class="delete-btn" onclick="deleteGame('${id}')">SİL</button>` : ''}
-                    <img src="${g.img || 'https://via.placeholder.com/300x160'}">
-                    <div class="game-info">
-                        <h3>${g.title}</h3>
-                        <p style="color:var(--accent); font-weight:bold;">${g.price} TL</p>
-                        <button class="btn" style="width:100%; background:#333;" onclick="prepareKey('${id}', '${g.title}', '${g.secret}', '${g.img}')">Key Kullan</button>
-                    </div></div>`;
-            });
-        });
-        if(currentUser === adminUser) {
-            db.ref('keys').on('value', snapshot => { document.getElementById('keyList').value = (snapshot.val() || []).join('\n'); });
-        }
-    }
-
-    function setupUI() {
-        const ctrl = document.getElementById('user-controls');
-        ctrl.innerHTML = `<div class="profile-container">
-            <button class="btn" onclick="toggleMenu()">👤 ${currentUser}</button>
-            <div id="pMenu" class="profile-menu">
-                <a onclick="showLibrary()">Kütüphanem</a>
-                ${currentUser === adminUser ? '<a onclick="showAdmin()">Admin Paneli</a>' : ''}
-                <a onclick="localStorage.clear(); location.reload();">Çıkış</a>
-            </div></div>`;
-    }
-
-    function toggleMenu() { const m = document.getElementById('pMenu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-    function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; toggleMenu(); }
-    function addGame() {
-        const title = document.getElementById('gTitle').value;
-        const price = document.getElementById('gPrice').value;
-        const img = document.getElementById('gImg').value;
-        const secret = document.getElementById('gSecret').value;
-        if(title && secret) { db.ref('games').push({ title, price, img, secret }); alert("Oyun Eklendi!"); }
-    }
-    function deleteGame(id) { if(confirm("Silinsin mi?")) db.ref('games/' + id).remove(); }
-    function updateKeys() {
-        const keys = document.getElementById('keyList').value.split('\n').map(k => k.trim()).filter(k => k);
-        db.ref('keys').set(keys); alert("Keyler Güncellendi!");
-    }
-    function prepareKey(id, title, secret, img) { if(!currentUser) return openModal('auth-modal'); targetGame = { id, title, secret, img }; openModal('key-modal'); }
-    function useKey() {
-        const input = document.getElementById('keyInp').value.trim();
-        db.ref('keys').once('value', snapshot => {
-            let currentKeys = snapshot.val() || [];
-            const idx = currentKeys.indexOf(input);
-            if(idx > -1) {
-                currentKeys.splice(idx, 1);
-                db.ref('keys').set(currentKeys);
-                db.ref('libraries/' + currentUser).push(targetGame);
-                alert("Oyun Kütüphanene Eklendi!"); closeModals();
-            } else { alert("Geçersiz Key!"); }
-        });
-    }
-    function showLibrary() {
-        document.getElementById('library-panel').style.display = 'block'; toggleMenu();
-        db.ref('libraries/' + currentUser).on('value', snapshot => {
-            const data = snapshot.val() || {};
-            const content = document.getElementById('library-content');
-            content.innerHTML = "";
-            Object.values(data).forEach(g => {
-                content.innerHTML += `<div class="game-card"><img src="${g.img}"><div class="game-info"><h3>${g.title}</h3><p style="color:var(--accent); font-size:12px;">${g.secret}</p></div></div>`;
-            });
-        });
-    }
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById('overlay').style.display = 'none'; }
-</script>
-
-</body>
-</html>
