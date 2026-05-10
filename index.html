@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Swascshop | Secure Key v14</title>
+    <title>Swascshop | Swascshop</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
@@ -109,7 +109,6 @@
 </div>
 
 <script>
-    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyDP-thFeeUtfQ5P4e4wwToAK_xEkrFFcvk",
         authDomain: "swascshop.firebaseapp.com",
@@ -159,7 +158,7 @@
             });
         });
 
-        // Key Havuzu (Canlı İzleme)
+        // Key Havuzu
         db.ref('keys').on('value', s => {
             const keys = s.val() || [];
             if(currentUser === "Swascshop") {
@@ -179,47 +178,47 @@
             });
         });
 
-        // Kütüphane
+        // KÜTÜPHANE (Canlı Senkronizasyon)
         db.ref('users/' + currentUser + '/library').on('value', s => {
             const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
             const data = s.val() || {};
-            Object.keys(data).forEach(id => {
-                grid.innerHTML += `<div style="background:#222; padding:10px; margin-bottom:10px; border-left:4px solid var(--neon);"><b>${data[id].title}</b><br><small>${data[id].secret}</small></div>`;
-            });
-        });
-    }
-
-    function saveKeys() {
-        const text = document.getElementById('keyList').value;
-        const keys = text.split('\n').map(k => k.trim()).filter(k => k !== "");
-        db.ref('keys').set(keys).then(() => {
-            alert("Keyler başarıyla güncellendi!");
-            document.getElementById('keyList').value = "";
-        });
-    }
-
-    function checkKey() {
-        const k = document.getElementById('verifyKey').value.trim();
-        db.ref('keys').once('value', s => {
-            let keys = s.val() || [];
-            const index = keys.indexOf(k);
-            if(index > -1) {
-                keys.splice(index, 1);
-                db.ref('keys').set(keys).then(() => {
-                    isVerified = true;
-                    alert("Onaylandı! Mağaza açıldı.");
-                    showSection('shop');
+            const keys = Object.keys(data);
+            if(keys.length === 0) {
+                grid.innerHTML = "<p style='color:gray;'>Henüz oyun seçilmedi.</p>";
+            } else {
+                keys.forEach(id => {
+                    grid.innerHTML += `<div style="background:#222; padding:10px; margin-bottom:10px; border-left:4px solid var(--neon);">
+                        <b>${data[id].title}</b><br>
+                        <small style="color:var(--accent); font-weight:bold;">${data[id].secret}</small>
+                    </div>`;
                 });
-            } else alert("Geçersiz veya kullanılmış key!");
+            }
         });
     }
 
-    function claimGame(id, title, secret) {
-        db.ref('users/' + currentUser + '/library').push({title, secret}).then(() => {
-            isVerified = false;
-            alert("Kütüphaneye eklendi!");
-            showSection('library');
-        });
+    async function checkKey() {
+        const k = document.getElementById('verifyKey').value.trim();
+        const snapshot = await db.ref('keys').get();
+        let keys = snapshot.val() || [];
+        const index = keys.indexOf(k);
+
+        if(index > -1) {
+            keys.splice(index, 1);
+            await db.ref('keys').set(keys);
+            isVerified = true;
+            alert("Anahtar Onaylandı! Mağaza Açıldı.");
+            showSection('shop');
+        } else {
+            alert("Geçersiz veya kullanılmış anahtar!");
+        }
+    }
+
+    async function claimGame(id, title, secret) {
+        // Önce Firebase'e yazıyoruz
+        await db.ref('users/' + currentUser + '/library').push({title, secret});
+        isVerified = false; // Mağaza yetkisini sıfırla (tek kullanımlık)
+        alert("Başarılı! Kütüphanene yönlendiriliyorsun...");
+        showSection('library');
     }
 
     function showSection(id) {
@@ -232,6 +231,11 @@
     function addGame() { db.ref('games').push({title: document.getElementById('gTitle').value, secret: document.getElementById('gSecret').value}); }
     function manualReview() { db.ref('reviews').push({name: document.getElementById('revName').value, text: document.getElementById('revText').value}); }
     function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }
+    function saveKeys() {
+        const text = document.getElementById('keyList').value;
+        const keys = text.split('\n').map(k => k.trim()).filter(k => k !== "");
+        db.ref('keys').set(keys).then(() => { alert("Güncellendi!"); document.getElementById('keyList').value = ""; });
+    }
     function searchGames() {
         const val = document.getElementById('gameSearch').value.toLowerCase();
         document.querySelectorAll('.game-card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(val) ? "block" : "none"; });
