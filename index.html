@@ -249,6 +249,61 @@
     }
     function toggleAdmin() { if(currentUser === adminUser) { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
     function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-</script>
+// --- ADMIN AYARLARINI KAYDETME ---
+function updateSettings() {
+    const rewards = document.getElementById('wheelRewards').value;
+    const music = document.getElementById('musicUrl').value;
+
+    // Veritabanına ayarları gönderiyoruz
+    db.ref('settings').update({
+        wheel: rewards,
+        music: music
+    }).then(() => {
+        alert("✅ AYARLAR GÜNCELLENDİ! Çark artık yeni ödülleri verecek.");
+        loadSettings(); // Ayarları hemen sayfaya geri yükle
+    }).catch(err => alert("Hata: " + err.message));
+}
+
+// --- GÜNCELLENMİŞ ÇARK ÇEVİRME ---
+function spinWheel() {
+    const today = new Date().toDateString().replace(/\s/g, "");
+    
+    db.ref('wheelLog/' + currentUser + '/' + today).once('value', s => {
+        // Admin kısıtlamaya takılmaz, istediği kadar çevirir
+        if (s.exists() && currentUser !== adminUser) {
+            alert("Bugünlük hakkın bitti kanka!");
+            return;
+        }
+
+        const btn = document.getElementById('spin-btn');
+        btn.disabled = true;
+        btn.innerText = "DÖNÜYOR...";
+
+        // Admin panelinden yazdığın ödülleri anlık çekiyoruz
+        db.ref('settings/wheel').once('value', snapshot => {
+            const rawRewards = snapshot.val();
+            // Eğer admin panelinde ödül yoksa bunlar yedek:
+            const rewards = (rawRewards && rawRewards.trim() !== "") ? rawRewards.split(',') : ["Pas", "Key", "İndirim", "Üzgünüm"];
+            
+            setTimeout(() => {
+                const win = rewards[Math.floor(Math.random() * rewards.length)];
+                
+                // Kayıt işlemi
+                db.ref('wheelLog/' + currentUser + '/' + today).set({
+                    hasSpun: true,
+                    reward: win
+                }).then(() => {
+                    document.getElementById('wheel-msg').innerHTML = `🎉 KAZANDIN: <b style="color:var(--neon)">${win}</b>`;
+                    if(currentUser !== adminUser) {
+                        btn.innerText = "YARIN YİNE GEL";
+                    } else {
+                        btn.disabled = false;
+                        btn.innerText = "TEKRAR DENE (ADMİN)";
+                    }
+                });
+            }, 2000);
+        });
+    });
+}</script>
 </body>
 </html>
