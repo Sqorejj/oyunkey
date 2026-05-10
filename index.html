@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Global Sync v10</title>
+    <title>Swascshop | Full Control v11</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
@@ -15,8 +15,7 @@
         .logo h1 { margin:0; color:var(--neon); cursor: pointer; text-shadow: 0 0 10px var(--neon); }
         .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
 
-        /* ADMİN PANELİ */
-        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); position: relative; z-index: 1500; }
+        #admin-panel { display: none; background: #1f1f23; padding: 30px; border-bottom: 5px solid var(--neon); z-index: 1500; position: relative; }
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .admin-box { background: #2a2a2e; padding: 15px; border-radius: 12px; border: 1px solid #444; }
 
@@ -28,16 +27,14 @@
         .btn:hover { background: var(--neon); box-shadow: 0 0 15px var(--neon); }
 
         .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; }
+        .game-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid #333; text-align: center; position: relative; }
         
-        #fake-review-toast { 
-            position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; 
-            padding: 15px; border-radius: 8px; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.8); width: 280px;
-            transition: left 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ff4655; color: white; border: none; border-radius: 5px; cursor: pointer; padding: 5px 8px; font-size: 10px; font-weight: bold; }
+
+        #fake-review-toast { position: fixed; bottom: 20px; left: -400px; background: var(--card-bg); border-left: 5px solid gold; padding: 15px; border-radius: 8px; z-index: 9999; width: 280px; transition: left 0.8s; }
         #fake-review-toast.show { left: 20px; }
 
-        .review-card { background: #1a1a1a; padding: 15px; border-radius: 10px; border-bottom: 2px solid var(--neon); width: 280px; }
+        .review-card { background: #1a1a1a; padding: 15px; border-radius: 10px; border-bottom: 2px solid var(--neon); width: 280px; position: relative; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 8000; display: none; }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 320px; border: 2px solid var(--neon); display: none; }
         @keyframes fadeIn { from {opacity:0} to {opacity:1} }
@@ -46,7 +43,6 @@
 <body>
 
 <div id="top-announcement">📢 DEĞERLENDİRME YAPANA 1 KEY BEDAVA!</div>
-
 <div id="fake-review-toast">
     <div style="color: gold; font-weight: bold; margin-bottom: 5px;">⭐ YENİ YORUM</div>
     <div id="toast-content" style="font-size: 14px;"></div>
@@ -54,7 +50,7 @@
 
 <div id="overlay" class="overlay"></div>
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center; color:var(--neon);">Giriş Yap</h2>
+    <h2 style="text-align:center; color:var(--neon);">Swascshop Giriş</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
     <button class="btn" onclick="handleLogin()">GİRİŞ</button>
 </div>
@@ -71,13 +67,13 @@
 </nav>
 
 <div id="admin-panel">
-    <h2 style="text-align:center; color:var(--neon);">👑 ADMİN PANELİ</h2>
+    <h2 style="text-align:center; color:var(--neon);">👑 YÖNETİCİ PANELİ</h2>
     <div class="admin-grid">
         <div class="admin-box">
             <h3>📦 Oyun Ekle</h3>
             <input type="text" id="gTitle" placeholder="Oyun Adı">
             <input type="text" id="gSecret" placeholder="Hesap Bilgisi">
-            <button class="btn" onclick="addGame()">EKLE</button>
+            <button class="btn" onclick="addGame()">SİSTEME EKLE</button>
         </div>
         <div class="admin-box">
             <h3>⭐ Fake Yorum Ekle</h3>
@@ -86,7 +82,7 @@
             <button class="btn" style="background:var(--accent);" onclick="manualReview()">YAYINLA</button>
         </div>
         <div class="admin-box">
-            <h3>🔑 Keyler</h3>
+            <h3>🔑 Key Havuzu</h3>
             <textarea id="keyList" style="height:80px;" placeholder="Alt alta keyler..."></textarea>
             <button class="btn" onclick="saveKeys()">KAYDET</button>
         </div>
@@ -94,8 +90,8 @@
 </div>
 
 <div id="home" class="section active">
-    <h2 style="color:var(--neon); text-align:center;">Müşteri Değerlendirmeleri</h2>
-    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;"></div>
+    <h2 style="text-align:center;">Müşteri Değerlendirmeleri</h2>
+    <div id="reviewsGrid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
 </div>
 
 <div id="verify" class="section">
@@ -107,7 +103,7 @@
 </div>
 
 <div id="shop" class="section">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items: center;">
         <h2 style="color:var(--neon);">🛒 MAĞAZA</h2>
         <input type="text" id="gameSearch" placeholder="Oyun ara..." style="width:200px;" onkeyup="searchGames()">
     </div>
@@ -147,7 +143,7 @@
         if((u === "Swascshop" && p === "12345") || (u && p === "shop2026")) {
             localStorage.setItem('user', u);
             location.reload();
-        } else { alert("Hatalı!"); }
+        } else alert("Hatalı!");
     }
 
     function loginSuccess(user) {
@@ -160,16 +156,22 @@
     }
 
     function loadGlobalData() {
-        // Oyunları Çek
+        // Oyunlar ve Silme Butonu
         db.ref('games').on('value', s => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
-                grid.innerHTML += `<div class="game-card"><h3>${data[id].title}</h3><button class="btn" onclick="claimGame('${id}','${data[id].title}','${data[id].secret}')">SEÇ</button></div>`;
+                const g = data[id];
+                grid.innerHTML += `
+                    <div class="game-card">
+                        ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('games/${id}')">SİL</button>` : ''}
+                        <h3>${g.title}</h3>
+                        <button class="btn" onclick="claimGame('${id}','${g.title}','${g.secret}')">SEÇ</button>
+                    </div>`;
             });
         });
 
-        // Yorumları Çek
+        // Yorumlar ve Silme Butonu
         db.ref('reviews').on('value', s => {
             const grid = document.getElementById('reviewsGrid'); grid.innerHTML = "";
             allReviews = [];
@@ -177,7 +179,13 @@
             Object.keys(data).forEach(id => {
                 const r = data[id];
                 allReviews.push(r);
-                grid.innerHTML += `<div class="review-card"><strong>👤 ${r.name}</strong><br><span style="color:gold;">⭐⭐⭐⭐⭐</span><p style="font-size:14px;">"${r.text}"</p></div>`;
+                grid.innerHTML += `
+                    <div class="review-card">
+                        ${currentUser === "Swascshop" ? `<button class="delete-btn" onclick="deleteItem('reviews/${id}')">SİL</button>` : ''}
+                        <strong>👤 ${r.name}</strong><br>
+                        <span style="color:gold;">⭐⭐⭐⭐⭐</span>
+                        <p style="font-size:14px;">"${r.text}"</p>
+                    </div>`;
             });
         });
 
@@ -195,25 +203,31 @@
         }
     }
 
+    function deleteItem(path) {
+        if(confirm("Bu içeriği silmek istediğine emin misin?")) {
+            db.ref(path).remove().then(() => alert("Başarıyla silindi!"));
+        }
+    }
+
+    function addGame() {
+        const t = document.getElementById('gTitle').value, s = document.getElementById('gSecret').value;
+        if(t && s) db.ref('games').push({title: t, secret: s}).then(() => alert("Eklendi!"));
+    }
+
+    function manualReview() {
+        const n = document.getElementById('revName').value, t = document.getElementById('revText').value;
+        if(n && t) db.ref('reviews').push({name: n, text: t}).then(() => alert("Yayınlandı!"));
+    }
+
     function showSection(id) {
         if(id === 'shop' && !isVerified && currentUser !== "Swascshop") { alert("Önce key doğrula!"); return; }
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    function addGame() {
-        const t = document.getElementById('gTitle').value, s = document.getElementById('gSecret').value;
-        if(t && s) db.ref('games').push({title: t, secret: s}).then(() => alert("Oyun eklendi!"));
-    }
-
-    function manualReview() {
-        const n = document.getElementById('revName').value, t = document.getElementById('revText').value;
-        if(n && t) db.ref('reviews').push({name: n, text: t}).then(() => alert("Yorum yayınlandı!"));
-    }
-
     function saveKeys() {
         const k = document.getElementById('keyList').value.split('\n').filter(x => x.trim());
-        db.ref('keys').set(k).then(() => alert("Keyler kaydedildi!"));
+        db.ref('keys').set(k).then(() => alert("Keyler güncellendi!"));
     }
 
     function checkKey() {
@@ -224,7 +238,7 @@
             if(i > -1) {
                 keys.splice(i, 1); db.ref('keys').set(keys);
                 isVerified = true; alert("Onaylandı!"); showSection('shop');
-            } else { alert("Geçersiz Key!"); }
+            } else alert("Geçersiz Key!");
         });
     }
 
@@ -240,9 +254,9 @@
             const t = document.getElementById('fake-review-toast');
             document.getElementById('toast-content').innerHTML = `<b>${r.name}:</b> "${r.text}"`;
             t.classList.add('show');
-            setTimeout(() => { t.classList.remove('show'); }, 120000); // 2 dk ekranda
+            setTimeout(() => t.classList.remove('show'), 120000);
         };
-        setInterval(showToast, 600000); // 10 dk bir
+        setInterval(showToast, 600000);
     }
 
     function toggleAdmin() { if(currentUser === "Swascshop") { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
