@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OyunKey - Dijital Oyun Mağazası</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #0f0f1a; 
+      color: #fff; 
+      min-height: 100vh;
+    }
+    header { 
+      background: #1a1a2e; 
+      padding: 15px 40px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    h1, h2 { color: #00ffaa; }
+    nav a { 
+      color: #fff; 
+      margin: 0 15px; 
+      text-decoration: none; 
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: 30px auto; 
+      padding: 0 20px; 
+    }
+    .game-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+      gap: 20px; 
+    }
+    .game-card { 
+      background: #16213e; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      transition: 0.3s; 
+    }
+    .game-card:hover { transform: translateY(-10px); }
+    .game-card img { width: 100%; height: 180px; object-fit: cover; }
+    .game-info { padding: 15px; }
+    button { 
+      background: #00d4ff; 
+      color: black; 
+      border: none; 
+      padding: 10px 20px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    button:hover { background: #00ffaa; }
+    .modal { 
+      display: none; 
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      background: #1a1a2e; 
+      padding: 30px; 
+      border-radius: 15px; 
+      width: 90%; 
+      max-width: 450px; 
+      z-index: 1000;
+      border: 2px solid #00ffaa;
+    }
+    input { 
+      width: 100%; 
+      padding: 12px; 
+      margin: 10px 0; 
+      border-radius: 8px; 
+      border: none; 
+      font-size: 16px;
+    }
+    #user-info { margin: 0 15px; font-weight: bold; color: #00ffaa; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>OyunKey</h2>
+  <nav>
+    <a onclick="showSection('home')">Ana Sayfa</a>
+    <a onclick="showSection('verify')">🔑 Doğrula</a>
+    <span id="user-info"></span>
+    <a onclick="logout()" id="logout-btn" style="display:none; color:#ff6666;">Çıkış</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- Ana Sayfa -->
+  <div id="home-section">
+    <h1>Popüler Oyunlar</h1><br>
+    <div class="game-grid" id="game-list"></div>
+  </div>
+
+  <!-- Key Doğrulama Sayfası -->
+  <div id="verify-section" style="display:none; text-align:center;">
+    <h1>Key Doğrula</h1>
+    <p>Ürün anahtarını buraya girin</p>
+    <input type="text" id="key-input" placeholder="XXXX-XXXX-XXXX-XXXX" />
+    <br><br>
+    <button onclick="verifyKey()" style="padding:15px 40px; font-size:18px;">Doğrula</button>
+    <p id="verify-result" style="margin-top:20px; font-size:18px;"></p>
+  </div>
+
+</div>
+
+<!-- Oyun Detay Modal -->
+<div id="game-modal" class="modal">
+  <h2 id="modal-game-title"></h2>
+  <p id="modal-game-desc"></p>
+  <br>
+  <button onclick="closeModal()" style="background:#ff6666;">Kapat</button>
+</div>
+
+<script>
+// Oyun Listesi
+const games = [
+  { id: 1, title: "Cyberpunk 2077", price: "299 TL", img: "https://picsum.photos/id/1015/300/180", desc: "Aksiyon dolu açık dünya RPG macerası." },
+  { id: 2, title: "Elden Ring", price: "249 TL", img: "https://picsum.photos/id/237/300/180", desc: "Epik Souls-like oyun." },
+  { id: 3, title: "Valorant", price: "Ücretsiz", img: "https://picsum.photos/id/201/300/180", desc: "Taktiksel 5v5 FPS oyunu." },
+  { id: 4, title: "The Witcher 3", price: "149 TL", img: "https://picsum.photos/id/180/300/180", desc: "Klasikleşmiş RPG şaheseri." },
+  { id: 5, title: "GTA V", price: "199 TL", img: "https://picsum.photos/id/133/300/180", desc: "Açık dünya efsanesi." }
+];
+
+let activatedKeys = [];
+
+function loadGames() {
+  const container = document.getElementById('game-list');
+  container.innerHTML = '';
+  games.forEach(game => {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.innerHTML = `
+      <img src="${game.img}" alt="${game.title}">
+      <div class="game-info">
+        <h3>${game.title}</h3>
+        <p><strong>${game.price}</strong></p>
+        <button onclick="showGameDetail(${game.id})">Detaylar ve İndir</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function showGameDetail(id) {
+  const game = games.find(g => g.id === id);
+  if (!game) return;
+  
+  document.getElementById('modal-game-title').textContent = game.title;
+  document.getElementById('modal-game-desc').textContent = game.desc;
+  document.getElementById('game-modal').style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('game-modal').style.display = 'none';
+}
+
+function verifyKey() {
+  const key = document.getElementById('key-input').value.trim();
+  const result = document.getElementById('verify-result');
+
+  if (key.length < 8) {
+    result.innerHTML = `<span style="color:red;">❌ Geçersiz key!</span>`;
+    return;
+  }
+
+  if (!activatedKeys.includes(key)) {
+    activatedKeys.push(key);
+    result.innerHTML = `<span style="color:lime;">✅ Key başarıyla doğrulandı!<br>Artık oyunları indirebilirsiniz.</span>`;
+  } else {
+    result.innerHTML = `<span style="color:orange;">⚠️ Bu key daha önce kullanılmış.</span>`;
+  }
+}
+
+function showSection(section) {
+  document.getElementById('home-section').style.display = section === 'home' ? 'block' : 'none';
+  document.getElementById('verify-section').style.display = section === 'verify' ? 'block' : 'none';
+}
+
+function logout() {
+  document.getElementById('user-info').innerHTML = '';
+  document.getElementById('logout-btn').style.display = 'none';
+  alert("Çıkış yapıldı.");
+}
+
+// Sayfa yüklendiğinde
+window.onload = () => {
+  loadGames();
+  
+  // Hoşgeldin mesajı
+  setTimeout(() => {
+    const username = prompt("Kullanıcı adınızı girin:");
+    if (username && username.trim() !== "") {
+      document.getElementById('user-info').innerHTML = `👤 ${username}`;
+      document.getElementById('logout-btn').style.display = 'inline';
+    }
+  }, 600);
+};
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>OyunKey</title>
+  <style>body{background:#0f0f1a;color:white;font-family:Arial;text-align:center;padding:50px}h1{color:#00ffaa}</style>
+</head>
+<body>
+  <h1>✅ Test - Çalışıyor mu?</h1>
+  <p>Eğer bu yazıyı görüyorsan başarıldı!</p>
+  <button onclick="alert('Harika! Site çalışıyor 🚀')">Butona Tıkla</button>
+</body>
+</html>
