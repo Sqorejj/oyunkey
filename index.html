@@ -249,7 +249,24 @@
             alert("Lütfen en azından isim ve fiyat girin.");
         }
     }
-</script>
+function handleLogin() {
+    const user = document.getElementById('userInp').value;
+    const pass = document.getElementById('passInp').value;
+
+    // "Swascshop" ismini tam olarak burada kontrol ediyoruz
+    if (user === "Swascshop" && pass === "1234") {
+        alert("Selam Swascshop! Yönetici yetkileri tanımlandı.");
+        document.getElementById('admin-panel').style.display = 'block';
+        document.getElementById('user-controls').innerHTML = `<b style="color:var(--accent)">Admin: Swascshop</b>`;
+        closeAuth();
+    } else if (user !== "" && pass !== "") {
+        alert("Giriş başarılı! Hoş geldin " + user);
+        document.getElementById('user-controls').innerHTML = `<b>Müşteri: ${user}</b>`;
+        closeAuth();
+    } else {
+        alert("Lütfen tüm alanları doldurun!");
+    }
+}
 
 </body>
 </html>
