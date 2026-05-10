@@ -3,151 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swascshop | Ultimate Gaming Hub</title>
+    <title>Swascshop | Fixed & Working</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
-        :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; --banner-bg: #ff4655; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; background-image: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #0b0b0b 80%); min-height: 100vh; overflow-x: hidden; }
+        :root { --primary: #7289da; --bg: #0b0b0b; --card-bg: #161616; --text: #ffffff; --neon: #9146ff; --accent: #43b581; --warning: #f1c40f; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
         
-        /* Reklam Banner */
-        #promo-banner { background: var(--banner-bg); color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 14px; position: relative; z-index: 1001; }
-        #promo-banner a { color: white; text-decoration: underline; margin-left: 10px; }
-
-        nav { background: rgba(0,0,0,0.9); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
-        .logo h1 { margin:0; color:var(--neon); font-style: italic; text-shadow: 0 0 10px var(--neon); cursor: pointer; font-size: 24px; }
-        .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; transition: 0.3s; }
-        .nav-links button:hover { color: var(--neon); }
-
-        #admin-panel { display: none; background: #1a1a1b; padding: 25px; border-bottom: 3px solid var(--neon); animation: slideDown 0.4s; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-
-        .section { display: none; padding: 40px; animation: fadeIn 0.5s; max-width: 1200px; margin: auto; }
-        .active { display: block; }
-
-        /* Kartlar ve Konteyner */
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .game-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.4s; position: relative; }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--neon); box-shadow: 0 0 20px rgba(145, 70, 255, 0.3); }
-        .game-card img { width: 100%; height: 170px; object-fit: cover; }
+        /* ÖNEMLİ: Tıklama kilidini açan ayar */
+        * { box-sizing: border-box; }
         
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; text-align: center; display: block; width: 100%; box-sizing: border-box; }
-        .btn:hover { background: var(--neon); transform: scale(1.02); }
-
-        /* Bildirim (Fake Satış) */
-        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); border-left: 5px solid var(--neon); padding: 15px; border-radius: 8px; z-index: 9999; display: none; animation: slideIn 0.5s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 14px; }
-
-        /* Çark */
-        .wheel-box { text-align: center; margin: 20px auto; padding: 30px; border: 2px dashed var(--neon); border-radius: 20px; width: 340px; background: rgba(0,0,0,0.6); box-shadow: 0 0 30px rgba(145, 70, 255, 0.1); }
-
-        /* Yorumlar */
-        .reviews-section { margin-top: 60px; border-top: 1px solid #222; padding-top: 40px; }
-        .review-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border-bottom: 3px solid var(--neon); display: inline-block; margin: 10px; width: 280px; text-align: left; vertical-align: top; }
+        nav { background: rgba(0,0,0,0.95); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); position: sticky; top: 0; z-index: 9999; backdrop-filter: blur(10px); }
+        .nav-links button { background: none; border: none; color: white; margin: 0 10px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; z-index: 10000; position: relative; }
         
-        #verify-box { max-width: 450px; margin: 60px auto; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 20px; border: 1px solid var(--accent); box-shadow: 0 0 40px rgba(67, 181, 129, 0.1); }
-        .lib-card { background: #111; border-left: 5px solid var(--warning); padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+        .section { display: none; padding: 40px; max-width: 1200px; margin: auto; position: relative; z-index: 10; }
+        .active { display: block !important; }
 
-        input, textarea { padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #000; width: 100%; color: white; box-sizing: border-box; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1500; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 40px; border-radius: 20px; z-index: 2000; width: 350px; border: 1px solid var(--neon); }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; position: relative; z-index: 20; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-        @keyframes slideIn { from {transform: translateX(-100%);} to {transform: translateX(0);} }
-        @keyframes slideDown { from {transform: translateY(-100%);} to {transform: translateY(0);} }
+        #admin-panel { display: none; background: #1a1a1b; padding: 25px; border-bottom: 3px solid var(--neon); z-index: 5000; position: relative; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 8000; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; z-index: 9000; width: 320px; border: 2px solid var(--neon); }
+
+        /* Çark ve Kartlar */
+        .wheel-box { text-align: center; margin: 20px auto; padding: 30px; border: 2px dashed var(--neon); border-radius: 20px; width: 320px; background: rgba(0,0,0,0.6); }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .game-card { background: var(--card-bg); padding: 10px; border-radius: 10px; border: 1px solid #333; }
+        #notification-toast { position: fixed; bottom: 20px; left: 20px; background: var(--neon); padding: 10px 20px; border-radius: 5px; z-index: 99999; display: none; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<!-- Reklam Alanı -->
-<div id="promo-banner">
-    <span id="banner-text">SWASCSHOP ÖZEL KAMPANYA!</span>
-    <a id="banner-link" href="#" target="_blank">HEMEN TIKLA</a>
-</div>
 
 <div id="overlay" class="overlay"></div>
 <div id="notification-toast"></div>
 <audio id="bg-music" loop></audio>
 
 <nav>
-    <div class="logo"><h1 onclick="showSection('home')">SWASCSHOP</h1></div>
+    <div class="logo"><h1 onclick="showSection('home')" style="cursor:pointer; color:var(--neon);">SWASCSHOP</h1></div>
     <div class="nav-links">
-        <button onclick="showSection('home')">🏠 ANA SAYFA</button>
-        <button onclick="showSection('verify')">🔑 DOĞRULA</button>
-        <button onclick="showSection('shop')">🛒 MAĞAZA</button>
-        <button onclick="showSection('library')">📚 KÜTÜPHANE</button>
+        <button onclick="showSection('home')">ANA SAYFA</button>
+        <button onclick="showSection('verify')">DOĞRULA</button>
+        <button onclick="showSection('shop')">MAĞAZA</button>
+        <button onclick="showSection('library')">KÜTÜPHANE</button>
     </div>
     <div id="user-controls"></div>
 </nav>
 
-<!-- YÖNETİCİ TERMİNALİ -->
 <div id="admin-panel">
-    <h2 style="color:var(--neon); text-align:center; margin-bottom:20px;">👑 SWASCSHOP ADMİN TERMİNALİ</h2>
-    <div class="admin-grid">
+    <h2 style="text-align:center; color:var(--neon);">👑 YÖNETİCİ TERMİNALİ</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
         <div>
-            <h3>📦 Ürün Yönetimi</h3>
-            <input type="text" id="gTitle" placeholder="Oyun İsmi">
-            <input type="text" id="gImg" placeholder="Görsel URL (16:9)">
-            <input type="text" id="gSecret" placeholder="Teslimat Bilgisi (Hesap/Pass)">
-            <button class="btn" style="background:var(--accent);" onclick="addGame()">SİSTEME EKLE</button>
+            <input type="text" id="gTitle" placeholder="Oyun Adı">
+            <input type="text" id="gSecret" placeholder="Gizli Bilgi (Hesap/Pass)">
+            <button class="btn" onclick="addGame()">OYUN EKLE</button>
         </div>
         <div>
-            <h3>⭐ Yorum & Reklam</h3>
-            <input type="text" id="revName" placeholder="Müşteri İsmi">
-            <textarea id="revText" placeholder="Müşteri yorumu..." style="height:60px;"></textarea>
-            <button class="btn" onclick="addReview()">YORUMU YAYINLA</button>
-            <hr style="border-color:#333; margin:15px 0;">
-            <input type="text" id="banText" placeholder="Reklam Yazısı">
-            <input type="text" id="banLink" placeholder="Reklam Linki">
-            <button class="btn" style="background:var(--banner-bg);" onclick="updateBanner()">REKLAMI GÜNCELLE</button>
-        </div>
-        <div>
-            <h3>⚙️ Sistem Ayarları</h3>
-            <input type="text" id="musicUrl" placeholder="MP3 Linki (.mp3)">
-            <input type="text" id="wheelRewards" placeholder="Ödüller (Virgülle ayır)">
-            <textarea id="keyList" style="height:80px;" placeholder="Satılacak Keyler (Her satıra 1 tane)"></textarea>
-            <button class="btn" onclick="saveSystemSettings()">SİSTEMİ KAYDET</button>
+            <input type="text" id="musicUrl" placeholder="MP3 Link">
+            <textarea id="keyList" placeholder="Keyler (Her satıra bir tane)"></textarea>
+            <button class="btn" onclick="saveSettings()">AYARLARI KAYDET</button>
         </div>
     </div>
 </div>
 
-<!-- SECTIONS -->
 <div id="home" class="section active">
-    <div class="wheel-box" id="daily-wheel">
-        <h3 style="color:var(--neon);">🎡 ŞANS ÇARKI</h3>
-        <p id="wheel-msg">Giriş yap ve ödülünü kap!</p>
+    <div class="wheel-box">
+        <h3>🎡 GÜNLÜK ÇARK</h3>
+        <p id="wheel-msg">Ödülünü almak için çevir!</p>
         <button class="btn" id="spin-btn" onclick="spinWheel()">ÇEVİR</button>
     </div>
-    
-    <div class="reviews-section">
-        <h2 style="color:var(--neon); margin-bottom:30px;">⭐ MUTLU MÜŞTERİLERİMİZ</h2>
-        <div id="reviewsGrid"></div>
-    </div>
+    <div id="reviewsGrid" style="margin-top:30px; text-align:center;"></div>
 </div>
 
 <div id="verify" class="section">
-    <div id="verify-box">
-        <h2 style="color:var(--accent);">KEY DOĞRULAMA</h2>
-        <p>Satın aldığın lisans anahtarını girerek oyununu seçebilirsin.</p>
-        <input type="text" id="verifyKey" placeholder="KEY-XXXX-XXXX" style="text-align:center; font-size:18px; letter-spacing:2px;">
-        <button class="btn" style="background:var(--accent); margin-top:15px; height:50px;" onclick="checkVerifyKey()">SİSTEMİ AKTİF ET</button>
+    <div style="max-width:400px; margin:auto; background:var(--card-bg); padding:30px; border-radius:10px; text-align:center;">
+        <h2>ANAHTAR DOĞRULA</h2>
+        <input type="text" id="verifyKey" placeholder="KEY-XXXX">
+        <button class="btn" style="background:var(--accent); margin-top:10px;" onclick="checkKey()">DOĞRULA</button>
     </div>
 </div>
 
 <div id="shop" class="section">
-    <h2 style="color:var(--neon); margin-bottom:30px;">🛒 OYUNUNU SEÇ</h2>
+    <h2>🛒 OYUNUNU SEÇ</h2>
     <div class="container" id="gameGrid"></div>
 </div>
 
 <div id="library" class="section">
-    <h2 style="color:var(--warning); margin-bottom:30px;">📚 OYUN KÜTÜPHANEM</h2>
-    <div id="libraryGrid">Henüz seçilmiş bir oyunun yok.</div>
+    <h2>📚 KÜTÜPHANEM</h2>
+    <div id="libraryGrid">Henüz oyunun yok.</div>
 </div>
 
-<!-- MODALS -->
 <div id="auth-modal" class="modal">
-    <h2 style="text-align:center; color:var(--neon);">Dükkana Giriş</h2>
+    <h2 style="text-align:center;">Giriş Yap</h2>
     <input type="text" id="uName" placeholder="Kullanıcı Adı">
-    <button class="btn" onclick="handleLogin()">GİRİŞ YAP</button>
+    <button class="btn" onclick="handleLogin()">GİRİŞ</button>
 </div>
 
 <script>
@@ -161,237 +110,131 @@
         appId: "1:132240652717:web:a85fe5a857e6d5d2ad4924"
     };
 
-    const adminUser = "Swascshop", adminPass = "12345", customerPass = "shop2026";
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let currentUser = localStorage.getItem('user'), isVerified = false, isPlaying = false;
+    let currentUser = localStorage.getItem('user'), isVerified = false;
 
     window.onload = () => {
         if(currentUser) { 
-            setupUI(); 
-            checkWheelStatus(); 
-            loadLibrary(); 
+            closeAuth(); 
+            loadData(); 
+            checkWheel();
         } else {
-            openModal('auth-modal');
+            document.getElementById('auth-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
         }
-        loadAllData();
-        startFakeSales();
     };
 
     function showSection(id) {
-        if(id === 'shop' && !isVerified && currentUser !== adminUser) {
-            alert("⚠️ Lütfen önce bir Key doğrulayın!");
-            showSection('verify');
-            return;
+        if(id === 'shop' && !isVerified && currentUser !== "Swascshop") {
+            alert("Önce key doğrula!");
+            return showSection('verify');
         }
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        window.scrollTo(0,0);
     }
 
     function handleLogin() {
         const u = document.getElementById('uName').value.trim();
-        const p = prompt("Giriş Şifresi:");
-        if(u.toLowerCase() === adminUser.toLowerCase() && p === adminPass) { 
-            localStorage.setItem('user', adminUser); location.reload(); 
-        } else if(u && p === customerPass) { 
-            localStorage.setItem('user', u); location.reload(); 
-        } else {
-            alert("Hatalı bilgiler!");
+        const p = prompt("Şifre:");
+        if(u === "Swascshop" && p === "12345") {
+            localStorage.setItem('user', u); location.reload();
+        } else if(u && p === "shop2026") {
+            localStorage.setItem('user', u); location.reload();
+        } else { alert("Hatalı!"); }
+    }
+
+    function closeAuth() {
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('user-controls').innerHTML = `<button class="btn" style="width:auto;" onclick="toggleAdmin()">${currentUser}</button>`;
+    }
+
+    function toggleAdmin() {
+        if(currentUser === "Swascshop") {
+            const p = document.getElementById('admin-panel');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
         }
     }
 
-    function loadAllData() {
-        // Oyunlar
+    function loadData() {
+        // Oyunları Çek
         db.ref('games').on('value', s => {
             const grid = document.getElementById('gameGrid'); grid.innerHTML = "";
             const data = s.val() || {};
             Object.keys(data).forEach(id => {
                 const g = data[id];
                 grid.innerHTML += `<div class="game-card">
-                    ${currentUser === adminUser ? `<button onclick="deleteItem('games/${id}')" style="position:absolute; right:10px; top:10px; background:red; color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer; z-index:2;">X</button>` : ''}
-                    <img src="${g.img || 'https://via.placeholder.com/300x170'}">
-                    <div style="padding:20px;">
-                        <h3 style="margin:0 0 15px 0;">${g.title}</h3>
-                        <button class="btn" onclick="claimGame('${id}', '${g.title}', '${g.secret}')">BU OYUNU AL</button>
-                    </div></div>`;
-            });
-        });
-
-        // Yorumlar
-        db.ref('reviews').on('value', s => {
-            const grid = document.getElementById('reviewsGrid'); grid.innerHTML = "";
-            const data = s.val() || {};
-            Object.keys(data).forEach(id => {
-                const r = data[id];
-                grid.innerHTML += `<div class="review-card">
-                    <strong>👤 ${r.name}</strong><br><small>⭐⭐⭐⭐⭐</small>
-                    <p style="color:#aaa; font-size:14px; margin-top:10px;">${r.text}</p>
-                    ${currentUser === adminUser ? `<button onclick="deleteItem('reviews/${id}')" style="color:red; background:none; border:none; cursor:pointer;">[SİL]</button>` : ''}
+                    <h3>${g.title}</h3>
+                    <button class="btn" onclick="claimGame('${id}', '${g.title}', '${g.secret}')">SEÇ</button>
                 </div>`;
             });
         });
 
-        // Ayarlar & Reklam
-        db.ref('settings').on('value', s => {
+        // Kütüphaneyi Çek
+        db.ref('users/' + currentUser + '/library').on('value', s => {
+            const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
             const data = s.val() || {};
-            if(data.bannerText) document.getElementById('banner-text').innerText = data.bannerText;
-            if(data.bannerLink) document.getElementById('banner-link').href = data.bannerLink;
-            if(data.music) document.getElementById('bg-music').src = data.music;
-            if(currentUser === adminUser) {
-                document.getElementById('banText').value = data.bannerText || "";
-                document.getElementById('banLink').value = data.bannerLink || "";
-                document.getElementById('musicUrl').value = data.music || "";
-                document.getElementById('wheelRewards').value = data.wheel || "";
-            }
-        });
-
-        if(currentUser === adminUser) db.ref('keys').on('value', s => { 
-            document.getElementById('keyList').value = (s.val() || []).join('
-'); 
+            Object.keys(data).forEach(id => {
+                grid.innerHTML += `<div style="background:#222; padding:15px; margin-bottom:10px; border-radius:5px;">
+                    <strong>${data[id].title}</strong><br>Bilgi: ${data[id].secret}
+                </div>`;
+            });
         });
     }
 
-    function checkVerifyKey() {
-        const inp = document.getElementById('verifyKey').value.trim();
+    function checkKey() {
+        const key = document.getElementById('verifyKey').value;
         db.ref('keys').once('value', s => {
             let keys = s.val() || [];
-            const idx = keys.indexOf(inp);
+            const idx = keys.indexOf(key);
             if(idx > -1) {
                 keys.splice(idx, 1);
                 db.ref('keys').set(keys);
                 isVerified = true;
-                alert("✅ KEY ONAYLANDI! Mağazadan oyununu seçebilirsin.");
+                alert("Başarılı! Mağaza açıldı.");
                 showSection('shop');
-            } else {
-                alert("❌ Geçersiz veya kullanılmış Key!");
-            }
+            } else { alert("Key geçersiz!"); }
         });
     }
 
     function claimGame(id, title, secret) {
-        if(!confirm(title + " oyununu seçmek istediğine emin misin? Bilgiler kütüphanene eklenecek.")) return;
-        db.ref('users/' + currentUser + '/library').push({ title, secret, date: new Date().toLocaleString() });
-        isVerified = false; // Key hakkı biter
-        alert("🎉 Tebrikler! Bilgiler 'Kütüphane' sekmesine eklendi.");
+        db.ref('users/' + currentUser + '/library').push({ title, secret });
+        isVerified = false;
+        alert("Kütüphanene eklendi!");
         showSection('library');
     }
 
-    function loadLibrary() {
-        db.ref('users/' + currentUser + '/library').on('value', s => {
-            const grid = document.getElementById('libraryGrid'); grid.innerHTML = "";
-            const data = s.val() || {};
-            if(Object.keys(data).length === 0) grid.innerHTML = "Henüz bir oyun seçmedin.";
-            Object.keys(data).forEach(id => {
-                const g = data[id];
-                grid.innerHTML += `<div class="lib-card">
-                    <h3 style="margin:0 0 10px 0; color:var(--neon);">🎮 ${g.title}</h3>
-                    <p style="margin:5px 0;"><strong>Teslimat Bilgisi:</strong> <span style="background:#222; padding:2px 5px; color:var(--accent);">${g.secret}</span></p>
-                    <small style="color:#666;">Tarih: ${g.date}</small>
-                </div>`;
-            });
-        });
-    }
-
-    // Çark Sistemi
     function spinWheel() {
         const today = new Date().toDateString().replace(/\s/g, "");
-        db.ref('wheelLog/' + currentUser + '/' + today).once('value', s => {
-            if (s.exists() && currentUser !== adminUser) return alert("Hakkın bitti kanka!");
-            
-            const btn = document.getElementById('spin-btn');
-            btn.disabled = true; btn.innerText = "DÖNÜYOR...";
-
-            db.ref('settings/wheel').once('value', snap => {
-                const r = (snap.val() || "Key,Pas,İndirim").split(',');
-                setTimeout(() => {
-                    const win = r[Math.floor(Math.random() * r.length)];
-                    db.ref('wheelLog/' + currentUser + '/' + today).set({ hasSpun: true, reward: win }).then(() => {
-                        document.getElementById('wheel-msg').innerHTML = `🎉 Ödülün: <b style="color:var(--neon)">${win}</b>`;
-                        if(currentUser !== adminUser) btn.innerText = "YARIN TEKRAR GEL";
-                        else { btn.disabled = false; btn.innerText = "TEKRAR ÇEVİR"; }
-                    });
-                }, 2000);
-            });
-        });
+        db.ref('wheelLog/' + currentUser + '/' + today).set({ spun: true });
+        document.getElementById('wheel-msg').innerText = "Kazandın: KEY!";
+        document.getElementById('spin-btn').disabled = true;
     }
 
-    function checkWheelStatus() {
+    function checkWheel() {
         const today = new Date().toDateString().replace(/\s/g, "");
-        db.ref('wheelLog/' + currentUser + '/' + today).on('value', s => {
-            if (s.exists() && currentUser !== adminUser) {
+        db.ref('wheelLog/' + currentUser + '/' + today).once('value', s => {
+            if(s.exists() && currentUser !== "Swascshop") {
                 document.getElementById('spin-btn').disabled = true;
-                document.getElementById('spin-btn').innerText = "BUGÜNLÜK BİTTİ";
-                const data = s.val();
-                document.getElementById('wheel-msg').innerHTML = `Bugün kazandığın: <b style="color:var(--neon)">${data.reward}</b>`;
+                document.getElementById('spin-btn').innerText = "BİTTİ";
             }
         });
     }
 
-    // Admin Fonksiyonları
     function addGame() {
-        const title = document.getElementById('gTitle').value, img = document.getElementById('gImg').value, secret = document.getElementById('gSecret').value;
-        if(!title || !secret) return alert("Bilgileri gir!");
-        db.ref('games').push({ title, img, secret });
-        alert("Oyun sisteme eklendi!");
+        const title = document.getElementById('gTitle').value;
+        const secret = document.getElementById('gSecret').value;
+        db.ref('games').push({ title, secret });
+        alert("Eklendi!");
     }
 
-    function addReview() {
-        const name = document.getElementById('revName').value, text = document.getElementById('revText').value;
-        if(!name || !text) return alert("Yorum alanlarını doldur!");
-        db.ref('reviews').push({ name, text });
-        alert("Yorum yayınlandı!");
+    function saveSettings() {
+        const keys = document.getElementById('keyList').value.split('\n').filter(k => k.trim());
+        db.ref('keys').set(keys);
+        db.ref('settings/music').set(document.getElementById('musicUrl').value);
+        alert("Kaydedildi!");
     }
-
-    function updateBanner() {
-        const t = document.getElementById('banText').value, l = document.getElementById('banLink').value;
-        db.ref('settings').update({ bannerText: t, bannerLink: l });
-        alert("Reklam güncellendi!");
-    }
-
-    function saveSystemSettings() {
-        const m = document.getElementById('musicUrl').value, w = document.getElementById('wheelRewards').value, k = document.getElementById('keyList').value;
-        db.ref('settings').update({ music: m, wheel: w });
-        db.ref('keys').set(k.split('
-').filter(x => x.trim()));
-        alert("Sistem ayarları kaydedildi!");
-    }
-
-    // Ekran & Müzik & Bildirim
-    function toggleMusic() {
-        const m = document.getElementById('bg-music');
-        if(!isPlaying) { m.play().catch(()=>alert("Müzik linki geçersiz!")); isPlaying = true; document.getElementById('music-btn').innerText = "⏸️"; }
-        else { m.pause(); isPlaying = false; document.getElementById('music-btn').innerText = "🎵"; }
-    }
-
-    function startFakeSales() {
-        const users = ["Efe", "Murat", "Caner", "Yiğit", "Berke", "Yusuf"];
-        const games = ["MW2", "Roblox", "Brawl Stars", "GTA V", "Netflix"];
-        setInterval(() => {
-            if(Math.random() > 0.7 && currentUser) {
-                const msg = `⚡ ${users[Math.floor(Math.random()*users.length)]} az önce ${games[Math.floor(Math.random()*games.length)]} satın aldı!`;
-                showToast(msg);
-            }
-        }, 20000);
-    }
-
-    function showToast(msg) {
-        const t = document.getElementById('notification-toast');
-        t.innerText = msg; t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 5000);
-    }
-
-    function setupUI() {
-        document.getElementById('user-controls').innerHTML = `
-            <span id="music-btn" onclick="toggleMusic()" style="cursor:pointer; font-size:20px; margin-right:15px;">🎵</span>
-            <button class="btn" style="width:auto; padding:8px 15px;" onclick="toggleAdmin()">${currentUser}</button>
-            ${currentUser === adminUser ? '<button class="btn" style="width:auto; padding:8px 15px; background:#333; margin-left:5px;" onclick="localStorage.clear();location.reload();">ÇIKIŞ</button>' : ''}
-        `;
-    }
-
-    function toggleAdmin() { if(currentUser === adminUser) { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; } }
-    function deleteItem(path) { if(confirm("Silinsin mi?")) db.ref(path).remove(); }
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
 </script>
 </body>
 </html>
